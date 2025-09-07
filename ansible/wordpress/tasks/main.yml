@@ -1,0 +1,28 @@
+---
+# tasks file for wordpress
+- name: Create WordPress directory
+  ansible.builtin.file:
+    path: "{{ wordpress_site_path }}"
+    state: directory
+    owner: nginx
+    group: nginx
+    mode: '0755'
+
+- name: Download and unarchive WordPress
+  ansible.builtin.unarchive:
+    src: https://wordpress.org/latest.tar.gz
+    dest: "{{ wordpress_site_path }}"
+    remote_src: yes
+
+- name: Configure wp-config.php
+  ansible.builtin.template:
+    src: wp-config.php.j2
+    dest: "{{ wordpress_site_path }}/wp-config.php"
+
+- name: Set correct permissions for WordPress files
+  ansible.builtin.file:
+    path: "{{ wordpress_site_path }}"
+    owner: nginx
+    group: nginx
+    mode: '0755'
+    recurse: yes

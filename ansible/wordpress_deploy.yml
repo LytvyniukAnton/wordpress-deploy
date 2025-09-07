@@ -1,0 +1,18 @@
+---
+- name: Deploy WordPress on EC2
+  hosts: webservers
+  become: yes
+
+  vars:
+    db_name: "wordpress_db"
+    db_user: "wordpress_user"
+    wordpress_site_path: "/var/www/wordpress"
+
+  vars_files:
+    - secrets.yml
+
+  roles:
+    - role: mariadb
+    - role: nginx
+    - role: php
+    - role: wordpress

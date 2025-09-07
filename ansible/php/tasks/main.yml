@@ -1,0 +1,19 @@
+---
+# tasks file for php
+- name: Install PHP and required extensions
+  ansible.builtin.apt:
+    name:
+      - php-fpm
+      - php-mysql
+      - php-xml
+      - php-mbstring
+      - php-gd
+      - php-curl
+      - php-zip
+    state: present
+
+- name: Start and enable PHP-FPM service
+  ansible.builtin.service:
+    name: php7.4-fpm
+    state: started
+    enabled: yes

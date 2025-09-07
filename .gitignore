@@ -7,7 +7,7 @@ terraform.tfvars
 .terraform.tfstate.lock.info
 
 # Ansible
-ansible/inventory.ini
+ansible/inventory.yml
 
 # SSH keys
 *.pem

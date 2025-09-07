@@ -1,0 +1,70 @@
+---
+# tasks file for nginx
+
+- name: Create nginx user and group
+  ansible.builtin.user:
+    name: nginx
+    state: present
+    system: yes
+    home: /var/www
+    shell: /sbin/nologin
+
+- name: Install Nginx
+  ansible.builtin.apt:
+    name: nginx
+    state: present
+    update_cache: yes
+
+- name: Create SSL directory
+  ansible.builtin.file:
+    path: /etc/nginx/ssl
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Generate a private key for SSL
+  community.crypto.openssl_privatekey:
+    path: /etc/nginx/ssl/nginx.key
+    size: 2048
+  notify: Restart Nginx
+
+- name: Create a certificate signing request (CSR)
+  community.crypto.openssl_csr:
+    path: /etc/nginx/ssl/nginx.csr
+    privatekey_path: /etc/nginx/ssl/nginx.key
+    common_name: "{{ ansible_host }}"
+  notify: Restart Nginx
+
+- name: Create a self-signed certificate
+  community.crypto.x509_certificate:
+    path: /etc/nginx/ssl/nginx.crt
+    csr_path: /etc/nginx/ssl/nginx.csr
+    privatekey_path: /etc/nginx/ssl/nginx.key
+    provider: selfsigned
+    selfsigned_not_after: "+365d"
+  notify: Restart Nginx
+
+- name: Remove temporary CSR
+  ansible.builtin.file:
+    path: /etc/nginx/ssl/nginx.csr
+    state: absent
+
+- name: Remove default Nginx config
+  ansible.builtin.file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+  notify: Restart Nginx
+
+- name: Copy Nginx site config
+  ansible.builtin.template:
+    src: default.conf.j2
+    dest: /etc/nginx/sites-available/default
+  notify: Restart Nginx
+
+- name: Create symlink for Nginx site config
+  ansible.builtin.file:
+    src: /etc/nginx/sites-available/default
+    dest: /etc/nginx/sites-enabled/default
+    state: link
+  notify: Restart Nginx
