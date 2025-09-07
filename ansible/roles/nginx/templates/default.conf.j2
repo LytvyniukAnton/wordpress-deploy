@@ -2,11 +2,12 @@ server {
     listen 80;
     listen 443 ssl;
     server_name {{ ansible_host }};
-    root {{ wordpress_site_path }};
-    index index.php index.html index.htm;
 
     ssl_certificate /etc/nginx/ssl/nginx.crt;
     ssl_certificate_key /etc/nginx/ssl/nginx.key;
+
+    root /var/www/html/wordpress;
+    index index.php index.html index.htm;
 
     location / {
         try_files $uri $uri/ /index.php?$args;
