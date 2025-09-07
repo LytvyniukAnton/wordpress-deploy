@@ -35,7 +35,6 @@ jobs:
           terraform apply -auto-approve \
             -var "allowed_ips=[\"${{ env.ALLOWED_IPS }}\"]" \
             -var "key_name=${{ env.AWS_KEY_NAME }}"
-            -var "private_key_path=/dev/null"
         working-directory: terraform
 
       - name: Get EC2 Public IP
