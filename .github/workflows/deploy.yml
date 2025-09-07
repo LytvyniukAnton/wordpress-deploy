@@ -10,6 +10,9 @@ jobs:
   terraform:
     name: "Provision EC2 with Terraform"
     runs-on: ubuntu-latest
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
     steps:
       - name: Checkout repository
@@ -78,9 +81,6 @@ jobs:
           
       - name: Add EC2 to known_hosts
         run: ssh-keyscan -H ${{ env.EC2_IP }} >> ~/.ssh/known_hosts
-        env:
-          ANSIBLE_HOST_KEY_CHECKING: "False"
-
 
       - name: Create Inventory File
         run: |
@@ -91,4 +91,6 @@ jobs:
         run: echo "${{ secrets.ANSIBLE_VAULT_PASS }}" > .vault_pass.txt
 
       - name: Run Ansible Playbook
-        run: ansible-playbook -i ansible/inventory.yml ansible/wordpress_deploy.yml --vault-password-file .vault_pass.txt
+        run: ansible-playbook -i ansible/inventory.ini ansible/wordpress_deploy.yml --vault-password-file .vault_pass.txt
+        env:
+          ANSIBLE_HOST_KEY_CHECKING: "False"
