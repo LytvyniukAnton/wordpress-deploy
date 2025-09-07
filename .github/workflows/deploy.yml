@@ -13,7 +13,8 @@ jobs:
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-
+      ALLOWED_IPS: ${{ secrets.ALLOWED_IPS }}
+      AWS_KEY_NAME: ${{ secrets.AWS_KEY_NAME }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -31,11 +32,10 @@ jobs:
       - name: Terraform Apply
         id: apply
         run: |
-          terraform apply -auto-approve -var "allowed_ips=[\"${ALLOWED_IPS}\"]"
+          terraform apply -auto-approve \
+            -var "allowed_ips=[\"${{ env.ALLOWED_IPS }}\"]" \
+            -var "key_name=${{ env.AWS_KEY_NAME }}"
         working-directory: terraform
-        env:
-          ALLOWED_IPS: ${{ secrets.ALLOWED_IPS }}
-
 
       - name: Get EC2 Public IP
         id: get_ip
@@ -95,6 +95,6 @@ jobs:
         run: echo "${{ secrets.ANSIBLE_VAULT_PASS }}" > .vault_pass.txt
 
       - name: Run Ansible Playbook
-        run: ansible-playbook -i ansible/inventory.ini ansible/wordpress_deploy.yml --vault-password-file .vault_pass.txt
+        run: ansible-playbook -i ansible/inventory.yml ansible/wordpress_deploy.yml --vault-password-file .vault_pass.txt
         env:
           ANSIBLE_HOST_KEY_CHECKING: "False"
