@@ -7,18 +7,13 @@ server {
     ssl_certificate_key /etc/nginx/ssl/nginx.key;
 
     # root /var/www/html/wordpress;
-    # root {{ wordpress_site_path }};
-    root {{ wordpress_site_path | default('/var/www/wordpress') }};
+    root {{ wordpress_site_path }};
 
     index index.php index.html index.htm;
 
      location / {
         try_files $uri $uri/ /index.php?$args;
      }
-
-    #location / {
-    #    return 301 https://$host/wordpress/;
-    #}
 
     location ~ \.php$ {
         include snippets/fastcgi-php.conf;
