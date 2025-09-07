@@ -77,8 +77,15 @@ jobs:
           EC2_IP=$(cat ec2_ip.txt)
           echo "EC2_IP=$EC2_IP" >> $GITHUB_ENV
 
-      - name: Wait for EC2 to be ready
-        run: sleep 60s
+      - name: Wait for SSH to be ready
+        run: |
+          for i in $(seq 1 10); do
+            nc -z -w5 ${{ env.EC2_IP }} 22 && echo "SSH is ready" && exit 0
+            echo "Waiting for SSH to be ready... ($i/10)"
+            sleep 5
+          done
+          echo "SSH port is not open after 50 seconds. Exiting."
+          exit 1
 
       - name: Install Dependencies
         run: |
