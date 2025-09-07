@@ -105,7 +105,7 @@ jobs:
       - name: Create Inventory File
         run: |
           mkdir -p ansible
-          echo "wp-server:" > ansible/inventory.yml
+          echo "webservers:" > ansible/inventory.yml
           echo "  hosts:" >> ansible/inventory.yml
           echo "    ${{ env.EC2_IP }}:" >> ansible/inventory.yml
           echo "      ansible_user: ubuntu" >> ansible/inventory.yml
