@@ -1,0 +1,94 @@
+name: Deploy WordPress on EC2
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  terraform:
+    name: "Provision EC2 with Terraform"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.6.0 # Recommended to pin to a specific version
+
+      - name: Terraform Init
+        id: init
+        run: terraform init
+        working-directory: terraform
+
+      - name: Terraform Apply
+        id: apply
+        run: terraform apply -auto-approve
+        working-directory: terraform
+
+      - name: Get EC2 Public IP
+        id: get_ip
+        run: echo "public_ip=$(terraform output -raw nginx_public_ip)" >> $GITHUB_ENV
+        working-directory: terraform
+
+      - name: Write IP to file
+        run: echo "${{ env.public_ip }}" > ec2_ip.txt
+
+      - name: Upload IP artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ec2_ip
+          path: ec2_ip.txt
+
+  ansible:
+    name: "Configure EC2 with Ansible"
+    runs-on: ubuntu-latest
+    needs: [terraform]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download IP artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ec2_ip
+          path: .
+
+      - name: Read IP
+        id: readip
+        run: |
+          EC2_IP=$(cat ec2_ip.txt)
+          echo "EC2_IP=$EC2_IP" >> $GITHUB_ENV
+
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-pip openssh-client
+          pip3 install ansible boto3 botocore community.general
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          
+      - name: Add EC2 to known_hosts
+        run: ssh-keyscan -H ${{ env.EC2_IP }} >> ~/.ssh/known_hosts
+        env:
+          ANSIBLE_HOST_KEY_CHECKING: "False"
+
+
+      - name: Create Inventory File
+        run: |
+          echo "[wp-server]" > ansible/inventory.yml
+          echo "${{ env.EC2_IP }} ansible_user=ubuntu" >> ansible/inventory.yml
+          
+      - name: Write Vault Password
+        run: echo "${{ secrets.ANSIBLE_VAULT_PASS }}" > .vault_pass.txt
+
+      - name: Run Ansible Playbook
+        run: ansible-playbook -i ansible/inventory.yml ansible/wordpress_deploy.yml --vault-password-file .vault_pass.txt

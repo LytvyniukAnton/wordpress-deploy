@@ -8,6 +8,8 @@ terraform.tfvars
 
 # Ansible
 ansible/inventory.yml
+*.vault_pass.txt
+*.vault_pass*
 
 # SSH keys
 *.pem
