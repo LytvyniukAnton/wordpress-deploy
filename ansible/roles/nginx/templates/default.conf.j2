@@ -1,17 +1,23 @@
 server {
     listen 80;
     listen 443 ssl;
-    server_name {{ ansible_host }};
+    server_name {{ ansible_host | default('_') }};
 
     ssl_certificate /etc/nginx/ssl/nginx.crt;
     ssl_certificate_key /etc/nginx/ssl/nginx.key;
 
-    #root /var/www/html/wordpress;
-    root {{ wordpress_site_path }};
+    # root /var/www/html/wordpress;
+    # root {{ wordpress_site_path }};
+    root {{ wordpress_site_path | default('/var/www/wordpress') }};
+
     index index.php index.html index.htm;
 
+    # location / {
+    #    try_files $uri $uri/ /index.php?$args;
+    # }
+
     location / {
-        try_files $uri $uri/ /index.php?$args;
+        return 301 https://$host/wordpress/;
     }
 
     location ~ \.php$ {
