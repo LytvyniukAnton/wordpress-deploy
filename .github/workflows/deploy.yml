@@ -24,9 +24,14 @@ jobs:
         with:
           terraform_version: 1.6.0 # Recommended to pin to a specific version
 
-      - name: Terraform Init
+      - name: Terraform Init with S3 Backend
         id: init
-        run: terraform init
+        run: |
+          terraform init \
+            -backend-config="bucket=my-first-remote-state" \
+            -backend-config="key=nginx/terraform.tfstate" \
+            -backend-config="region=us-east-1" \
+            -backend-config="dynamodb_table=terraform-locks"
         working-directory: terraform
 
       - name: Terraform Apply
