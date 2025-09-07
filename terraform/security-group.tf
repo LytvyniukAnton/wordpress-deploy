@@ -1,5 +1,5 @@
 resource "aws_security_group" "nginx_security_group" {
-  name        = "nginx-sg"
+  name = "nginx-sg"
   description = "Security group for Nginx web server"
   vpc_id      = data.aws_vpc.default.id #aws_vpc.main_vpc.id // Replace with your VPC ID or reference
 
