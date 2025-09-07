@@ -33,7 +33,7 @@ jobs:
         id: apply
         run: |
           terraform apply -auto-approve \
-            -var "allowed_ips=[\"${{ env.ALLOWED_IPS }}\"]" \
+            -var "allowed_ips=${ALLOWED_IPS}" \
             -var "key_name=${{ env.AWS_KEY_NAME }}"
         working-directory: terraform
 
