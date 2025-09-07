@@ -31,9 +31,11 @@ jobs:
       - name: Terraform Apply
         id: apply
         run: |
-          terraform apply -auto-approve \
-            -var 'allowed_ips=["${{ secrets.ALLOWED_IPS }}" ]'
+          terraform apply -auto-approve -var "allowed_ips=[\"${ALLOWED_IPS}\"]"
         working-directory: terraform
+        env:
+          ALLOWED_IPS: ${{ secrets.ALLOWED_IPS }}
+
 
       - name: Get EC2 Public IP
         id: get_ip
