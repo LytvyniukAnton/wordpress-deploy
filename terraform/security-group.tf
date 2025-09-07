@@ -23,7 +23,8 @@ resource "aws_security_group" "nginx_security_group" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = var.allowed_ips
+    #cidr_blocks = var.allowed_ips
+    cidr_blocks = ["0.0.0.0/0"]
     description = "Allow SSH access"
   }
 
