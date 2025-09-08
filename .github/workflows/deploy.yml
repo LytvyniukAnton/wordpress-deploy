@@ -87,12 +87,8 @@ jobs:
           echo "SSH port is not open after 50 seconds. Exiting."
           exit 1
       
-      - name: Install Dependencies
-        run: |
-          sudo apt update
-          sudo apt install -y python3-pip openssh-client
-          pip3 install ansible boto3 botocore
-          ansible-galaxy collection install community.general
+      - name: Setup Ansible
+        uses: ansible/ansible-setup-action@v2
 
       - name: Setup SSH
         uses: webfactory/ssh-agent@v0.9.0
@@ -107,8 +103,10 @@ jobs:
           mkdir -p ansible
           echo "webservers:" > ansible/inventory.yml
           echo "  hosts:" >> ansible/inventory.yml
-          echo "  ansible_host: ${{ env.EC2_IP }}:" >> ansible/inventory.yml
+          echo "    instance1:" >> ansible/inventory.yml
+          echo "      ansible_host: ${{ env.EC2_IP }}" >> ansible/inventory.yml
           echo "      ansible_user: ubuntu" >> ansible/inventory.yml
+
 
       - name: Run Ansible Playbook
         run: |
