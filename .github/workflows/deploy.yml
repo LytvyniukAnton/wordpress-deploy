@@ -87,8 +87,11 @@ jobs:
           echo "SSH port is not open after 50 seconds. Exiting."
           exit 1
       
-      - name: Setup Ansible
-        uses: ansible/ansible-setup-action@v2
+      - name: Install Ansible
+        run: |
+          python3 -m pip install --upgrade pip
+          pip3 install ansible==9.3.0 boto3==1.34.50 botocore==1.34.50
+          ansible-galaxy collection install community.general
 
       - name: Setup SSH
         uses: webfactory/ssh-agent@v0.9.0
