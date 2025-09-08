@@ -33,6 +33,9 @@ jobs:
       - name: Terraform Plan
         run: |
           terraform plan \
-            -var="allowed_ips=[\"${{ env.ALLOWED_IPS }}\"]" \
-            -var="key_name=${{ env.AWS_KEY_NAME }}"
+            -var "allowed_ips=${ALLOWED_IPS}" \
+            -var "key_name=${{ env.AWS_KEY_NAME }}"
         working-directory: terraform
+        env:
+          ALLOWED_IPS: ${{ secrets.ALLOWED_IPS }}
+          AWS_KEY_NAME: ${{ secrets.AWS_KEY_NAME }}
