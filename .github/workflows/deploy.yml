@@ -80,10 +80,7 @@ jobs:
       - name: Wait for SSH to be ready
         run: |
           for i in $(seq 1 10); do
-            if ssh -o StrictHostKeyChecking=no -o ConnectTimeout=5 ubuntu@${{ env.EC2_IP }} "exit"; then
-              echo "SSH is ready"
-              exit 0
-            fi
+            nc -z -w5 ${{ env.EC2_IP }} 22 && echo "SSH is ready" && exit 0
             echo "Waiting for SSH to be ready... ($i/10)"
             sleep 5
           done
