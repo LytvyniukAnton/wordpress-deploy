@@ -107,13 +107,12 @@ jobs:
           mkdir -p ansible
           echo "webservers:" > ansible/inventory.yml
           echo "  hosts:" >> ansible/inventory.yml
-          echo "    ${{ env.EC2_IP }}:" >> ansible/inventory.yml
+          echo "  ansible_host: ${{ env.EC2_IP }}:" >> ansible/inventory.yml
           echo "      ansible_user: ubuntu" >> ansible/inventory.yml
 
-      - name: Write Vault Password
-        run: echo "${{ secrets.ANSIBLE_VAULT_PASS }}" > .vault_pass.txt
-
       - name: Run Ansible Playbook
-        run: ansible-playbook -i ansible/inventory.yml ansible/wordpress_deploy.yml --vault-password-file .vault_pass.txt -e "db_root_password=${{ secrets.DB_ROOT_PASSWORD }}" -e "db_password=${{ secrets.DB_PASSWORD }}"
+        run: |
+          ansible-playbook -i ansible/inventory.yml ansible/wordpress_deploy.yml \
+          --vault-password-file <(echo "${{ secrets.ANSIBLE_VAULT_PASS }}")
         env:
           ANSIBLE_HOST_KEY_CHECKING: "False"
