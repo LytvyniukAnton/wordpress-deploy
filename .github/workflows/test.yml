@@ -33,6 +33,6 @@ jobs:
       - name: Terraform Plan
         run: |
           terraform plan \
-            -var="allowed_ips=\"${{ env.ALLOWED_IPS }}\"" \
+            -var="allowed_ips=[\"${{ env.ALLOWED_IPS }}\"]" \
             -var="key_name=${{ env.AWS_KEY_NAME }}"
         working-directory: terraform
