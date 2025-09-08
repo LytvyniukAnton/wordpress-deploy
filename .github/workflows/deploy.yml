@@ -80,18 +80,23 @@ jobs:
       - name: Wait for SSH to be ready
         run: |
           for i in $(seq 1 10); do
-            nc -z -w5 ${{ env.EC2_IP }} 22 && echo "SSH is ready" && exit 0
+            if ssh -o StrictHostKeyChecking=no -o ConnectTimeout=5 ubuntu@${{ env.EC2_IP }} "exit"; then
+              echo "SSH is ready"
+              exit 0
+            fi
             echo "Waiting for SSH to be ready... ($i/10)"
             sleep 5
           done
           echo "SSH port is not open after 50 seconds. Exiting."
           exit 1
+        env:
+          SSH_AUTH_SOCK: /tmp/ssh-agent.sock
       
       - name: Install Ansible
         run: |
           python3 -m pip install --upgrade pip
           pip3 install ansible==9.3.0 boto3==1.34.50 botocore==1.34.50
-          ansible-galaxy collection install community.general
+          ansible-galaxy collection install community.general community.crypto
 
       - name: Setup SSH
         uses: webfactory/ssh-agent@v0.9.0
