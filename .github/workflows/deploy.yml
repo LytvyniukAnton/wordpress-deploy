@@ -101,13 +101,12 @@ jobs:
       - name: Add EC2 to known_hosts
         run: ssh-keyscan -H ${{ env.EC2_IP }} >> ~/.ssh/known_hosts
 
-      - name: Create Inventory File
+       - name: Create Inventory File
         run: |
           mkdir -p ansible
           echo "webservers:" > ansible/inventory.yml
           echo "  hosts:" >> ansible/inventory.yml
-          echo "    instance1:" >> ansible/inventory.yml
-          echo "      ansible_host: ${{ env.EC2_IP }}" >> ansible/inventory.yml
+          echo "    ${{ env.EC2_IP }}:" >> ansible/inventory.yml
           echo "      ansible_user: ubuntu" >> ansible/inventory.yml
 
 
