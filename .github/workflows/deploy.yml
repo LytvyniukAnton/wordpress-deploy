@@ -89,8 +89,8 @@ jobs:
       
       - name: Install Dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install -y python3-pip openssh-client
+          sudo apt update
+          sudo apt install -y python3-pip openssh-client
           pip3 install ansible boto3 botocore
           ansible-galaxy collection install community.general
 
