@@ -10,13 +10,16 @@
   ansible.builtin.unarchive:
     src: https://wordpress.org/latest.tar.gz
     dest: "{{ wordpress_site_path }}"
-    remote_src: yes
+    remote_src: true
     extra_opts: ['--strip-components=1']
 
 - name: Configure wp-config.php
   ansible.builtin.template:
     src: wp-config.php.j2
     dest: "{{ wordpress_site_path }}/wp-config.php"
+    owner: nginx
+    group: nginx
+    mode: '0644'
 
 - name: Set correct permissions for WordPress files
   ansible.builtin.file:
@@ -24,4 +27,4 @@
     owner: nginx
     group: nginx
     mode: '0755'
-    recurse: yes
+    recurse: true

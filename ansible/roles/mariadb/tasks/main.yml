@@ -3,13 +3,13 @@
   ansible.builtin.apt:
     name: mariadb-server
     state: present
-    update_cache: yes
+    update_cache: true
 
 - name: Start and enable MariaDB service
   ansible.builtin.service:
     name: mariadb
     state: started
-    enabled: yes
+    enabled: true
 
 - name: Install Python MySQL client
   ansible.builtin.apt:
