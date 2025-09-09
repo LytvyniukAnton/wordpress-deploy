@@ -74,7 +74,7 @@ README.md
 
 1. **Development (`dev` branch)**:
    * All changes are pushed to the `dev` branch.
-   * A pull request is created from `dev` to `main`. This action triggers the `test.yml` workflow, which runs `terraform plan` and other checks.
+   * A pull request is created from `dev` to `main`. This action triggers the `test.yml` workflow, which runs automated checks.
    * This ensures that changes are validated before being merged into `main`.
 
 2. **Deployment (`main` branch)**:
@@ -95,6 +95,16 @@ README.md
    - Installs and configures Nginx with SSL
    - Installs PHP with necessary extensions
    - Downloads and configures WordPress
+
+---
+
+## Testing Workflow Details
+
+The `test.yml` workflow runs a series of checks on every pull request to ensure that infrastructure and configuration changes are valid and safe.
+
+- **Terraform Validate**: This is a fast, static check that validates the syntax and configuration of the Terraform files. It confirms that the code is correctly written before attempting a more complex plan.
+- **Terraform Plan Check**: This job generates an execution plan of all infrastructure changes without applying them. It shows exactly what resources will be added, changed, or destroyed, helping to catch unintended consequences before they are deployed.
+- **Ansible Lint**: This check validates the syntax and style of all Ansible playbooks and roles. It helps to catch common errors and enforces best practices, ensuring that your configuration code is clean and readable.
 
 ---
 
