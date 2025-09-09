@@ -1,4 +1,3 @@
-
 # WordPress Deployment on AWS with Terraform, Ansible and GitHub Actions
 
 ## Overview
@@ -51,21 +50,23 @@ README.md
 
 ## Prerequisites
 
-> [!TIP]
-> 1. AWS account.
-> 2. S3 bucket for Terraform remote state.
-> 3. DynamoDB table named `terraform-locks` for state locking.
-> 4. An EC2 key pair for SSH access.
-> 5. GitHub repository with this code.
-> 6. Configure these GitHub secrets in your repo:
->    - `AWS_ACCESS_KEY_ID`
->    - `AWS_SECRET_ACCESS_KEY`
->    - `AWS_KEY_NAME`
->    - `ALLOWED_IPS` (e.g. `["0.0.0.0/0"]`)
->    - `SSH_PRIVATE_KEY`
->    - `ANSIBLE_VAULT_PASS` (optional, if using Vault)
->    - `DB_ROOT_PASSWORD`
->    - `DB_PASSWORD`
+> [!NOTE] 
+> Before you begin, ensure you have a GitHub repository with this code. You will need to configure a series of GitHub secrets with your AWS credentials and other sensitive information.
+
+1. AWS account.
+2. S3 bucket for Terraform remote state.
+3. DynamoDB table named `terraform-locks` for state locking.
+4. An EC2 key pair for SSH access.
+5. GitHub repository with this code.
+6. Configure these GitHub secrets in your repo:
+   - `AWS_ACCESS_KEY_ID`
+   - `AWS_SECRET_ACCESS_KEY`
+   - `AWS_KEY_NAME`
+   - `ALLOWED_IPS` (e.g. `["0.0.0.0/0"]`)
+   - `SSH_PRIVATE_KEY`
+   - `ANSIBLE_VAULT_PASS` (optional, if using Vault)
+   - `DB_ROOT_PASSWORD`
+   - `DB_PASSWORD`
 
 ---
 
@@ -79,6 +80,10 @@ README.md
 2. **Deployment (`main` branch)**:
    * A pull request is created from `dev` to `main`.
    * All required checks from the `test.yml` workflow must pass before the pull request can be merged.
+
+> [!IMPORTANT]
+> The `main` branch is considered your production environment. Any merge into this branch will trigger a full deployment of your infrastructure and application.
+
    * A merge to `main` triggers the `deploy.yml` workflow, which runs `terraform apply` and the Ansible playbook to provision and configure the production environment.
 
 3. **Terraform** creates:
@@ -95,21 +100,30 @@ README.md
 
 ## Usage
 
-> [!NOTE]
-> 1. Clone this repository.
-> 2. Push it to your own GitHub repository.
-> 3. Add the required secrets in **Settings → Secrets → Actions**.
-> 4. Create a new `dev` branch and make all your changes there.
-> 5. Push changes to `dev`.
-> 6. Create a Pull Request from `dev` to `main`. A new workflow run will appear under the **Actions** tab. Ensure all checks pass.
-> 7. Merge the Pull Request. The `deploy.yml` workflow will automatically run.
-> 8. After successful deployment, grab the public IP from the Terraform outputs and open it in your browser — you should see the WordPress setup page.
+1. Clone this repository.
+2. Push it to your own GitHub repository.
+3. Add the required secrets in **Settings → Secrets → Actions**.
+
+> [!CAUTION]
+> The `ALLOWED_IPS` secret should be configured with a specific IP address or CIDR block to limit SSH and web access for security. Using `0.0.0.0/0` is not recommended for production environments.
+
+4. Create a new `dev` branch and make all your changes there.
+5. Push changes to `dev`.
+6. Create a Pull Request from `dev` to `main`. A new workflow run will appear under the **Actions** tab. Ensure all checks pass.
+7. Merge the Pull Request. The `deploy.yml` workflow will automatically run.
+8. After successful deployment, grab the public IP from the Terraform outputs and open it in your browser — you should see the WordPress setup page.
+
+> [!TIP]
+> You can find the public IP in the logs of the `terraform` job in your `deploy.yml` workflow.
 
 ---
 
 ## Destroying the Infrastructure
 
-> [!ATANTION]
-> If you want to tear everything down, run the `destroy.yml` workflow in GitHub Actions.
-> This executes `terraform destroy` and removes all AWS resources created by this project.
+If you want to tear everything down, run the `destroy.yml` workflow in GitHub Actions.
+
+> [!WARNING]
+> This action is permanent and will remove all AWS resources created by this project, including your EC2 instance, database, and all associated data. Use with caution.
+
+This executes `terraform destroy` and removes all AWS resources created by this project.
 ---
