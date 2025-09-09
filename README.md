@@ -13,6 +13,9 @@ a fully automated CI/CD workflow:
 The goal is to have a repeatable and simple way to get a working WordPress
 site online in minutes, with a robust testing and deployment pipeline.
 
+> [!NOTE]
+> This project is intended as an educational example of how to combine Terraform, Ansible, and GitHub Actions for WordPress deployment.
+
 ---
 
 ## Project Structure
@@ -47,6 +50,9 @@ terraform/
 .gitignore
 README.md
 ```
+
+> [!TIP]
+> You can extend this structure by adding more Ansible roles or Terraform modules as your infrastructure grows.
 
 ---
 
@@ -96,6 +102,9 @@ README.md
   `terraform apply` and the Ansible playbook to provision and configure the
   production environment.
 
+> [!IMPORTANT]
+> Always review the Terraform plan carefully before applying changes to production.
+
 1. **Terraform** creates:
    - An EC2 instance
    - A security group with inbound rules for SSH, HTTP, HTTPS
@@ -123,6 +132,9 @@ infrastructure and configuration changes are valid and safe.
 - **Ansible Lint**: This check validates the syntax and style of all Ansible
   playbooks and roles. It helps to catch common errors and enforces best
   practices, ensuring that your configuration code is clean and readable.
+
+> [!NOTE]
+> These checks run automatically on pull requests, so you don’t need to trigger them manually.
 
 ---
 
@@ -185,5 +197,8 @@ If you want to tear everything down, run the `destroy.yml` workflow in GitHub Ac
 > This action is permanent and will remove all AWS resources created by this project,
 > including your EC2 instance, database, and all associated data.
 > Use with caution.
+
+> [!CAUTION]
+> Destroying infrastructure will also delete all WordPress content stored on the instance unless you use external storage or backups.
 
 This executes `terraform destroy` and removes all AWS resources created by this project.
