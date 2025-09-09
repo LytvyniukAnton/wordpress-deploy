@@ -21,10 +21,20 @@
     group: nginx
     mode: '0644'
 
-- name: Set correct permissions for WordPress files
+- name: Set correct permissions for WordPress directories
   ansible.builtin.file:
     path: "{{ wordpress_site_path }}"
     owner: nginx
     group: nginx
     mode: '0755'
     recurse: true
+    file_type: directory # Only applies permissions to directories
+
+- name: Set correct permissions for WordPress files
+  ansible.builtin.file:
+    path: "{{ wordpress_site_path }}"
+    owner: nginx
+    group: nginx
+    mode: '0644'
+    recurse: true
+    file_type: file # Only applies permissions to files
