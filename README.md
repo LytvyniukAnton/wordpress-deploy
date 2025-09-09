@@ -108,6 +108,17 @@ The `test.yml` workflow runs a series of checks on every pull request to ensure 
 
 ---
 
+## How to enable auto-merge
+
+For a fully automated workflow, you can enable auto-merge for your pull requests. This feature allows GitHub to automatically merge your changes into `main` once all required checks and reviews have been approved.
+
+1.  **Enable auto-merge in your repository settings**: Go to **Settings** > **General** > **Pull requests** and check **"Allow auto-merge"**.
+2.  **Enable on the pull request**: After creating a pull request, you will see the option to **"Enable auto-merge"** in the sidebar.
+
+This feature, combined with your **branch protection rules**, ensures that only validated and approved code is merged into your production branch, minimizing the risk of errors.
+
+---
+
 ## Usage
 
 1. Clone this repository.
@@ -117,11 +128,17 @@ The `test.yml` workflow runs a series of checks on every pull request to ensure 
 > [!CAUTION]
 > The `ALLOWED_IPS` secret should be configured with a specific IP address or CIDR block to limit SSH and web access for security. Using `0.0.0.0/0` is not recommended for production environments.
 
-4. Create a new `dev` branch and make all your changes there.
-5. Push changes to `dev`.
-6. Create a Pull Request from `dev` to `main`. A new workflow run will appear under the **Actions** tab. Ensure all checks pass.
-7. Merge the Pull Request. The `deploy.yml` workflow will automatically run.
-8. After successful deployment, grab the public IP from the Terraform outputs and open it in your browser — you should see the WordPress setup page.
+4. **Configure Branch Protection Rules**:
+   - Go to **Settings → Branches** and create a new rule for the `main` branch.
+   - Select **"Require a pull request before merging"** and **"Require status checks to pass before merging"**.
+   - Add the following required status checks: `Terraform Plan Check`, `Terraform Validate`, and `Ansible Lint`.
+   - Optionally, you can also enable **"Allow auto-merge"** in your repository's **Pull requests** settings.
+
+5. Create a new `dev` branch and make all your changes there.
+6. Push changes to `dev`.
+7. Create a Pull Request from `dev` to `main`. A new workflow run will appear under the **Actions** tab. Ensure all checks pass.
+8. Merge the Pull Request. The `deploy.yml` workflow will automatically run.
+9. After successful deployment, grab the public IP from the Terraform outputs and open it in your browser — you should see the WordPress setup page.
 
 > [!TIP]
 > You can find the public IP in the logs of the `terraform` job in your `deploy.yml` workflow.
