@@ -16,4 +16,4 @@
   ansible.builtin.service:
     name: php7.4-fpm
     state: started
-    enabled: yes
+    enabled: true

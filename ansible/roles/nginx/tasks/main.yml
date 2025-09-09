@@ -5,7 +5,7 @@
   ansible.builtin.user:
     name: nginx
     state: present
-    system: yes
+    system: true
     home: /var/www
     shell: /sbin/nologin
 
@@ -13,7 +13,7 @@
   ansible.builtin.apt:
     name: nginx
     state: present
-    update_cache: yes
+    update_cache: true
 
 - name: Create SSL directory
   ansible.builtin.file:
@@ -60,6 +60,9 @@
   ansible.builtin.template:
     src: default.conf.j2
     dest: /etc/nginx/sites-available/default
+    owner: nginx
+    group: nginx
+    mode: '0644'
   notify: Restart Nginx
 
 - name: Create symlink for Nginx site config
