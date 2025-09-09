@@ -28,3 +28,4 @@
     group: nginx
     mode: '0755'
     recurse: true
+    
