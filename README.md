@@ -51,20 +51,21 @@ README.md
 
 ## Prerequisites
 
-1. AWS account.
-2. S3 bucket for Terraform remote state.
-3. DynamoDB table named `terraform-locks` for state locking.
-4. An EC2 key pair for SSH access.
-5. GitHub repository with this code.
-6. Configure these GitHub secrets in your repo:
-   - `AWS_ACCESS_KEY_ID`
-   - `AWS_SECRET_ACCESS_KEY`
-   - `AWS_KEY_NAME`
-   - `ALLOWED_IPS` (e.g. `["0.0.0.0/0"]`)
-   - `SSH_PRIVATE_KEY`
-   - `ANSIBLE_VAULT_PASS` (optional, if using Vault)
-   - `DB_ROOT_PASSWORD`
-   - `DB_PASSWORD`
+> [!TIP]
+> 1. AWS account.
+> 2. S3 bucket for Terraform remote state.
+> 3. DynamoDB table named `terraform-locks` for state locking.
+> 4. An EC2 key pair for SSH access.
+> 5. GitHub repository with this code.
+> 6. Configure these GitHub secrets in your repo:
+>    - `AWS_ACCESS_KEY_ID`
+>    - `AWS_SECRET_ACCESS_KEY`
+>    - `AWS_KEY_NAME`
+>    - `ALLOWED_IPS` (e.g. `["0.0.0.0/0"]`)
+>    - `SSH_PRIVATE_KEY`
+>    - `ANSIBLE_VAULT_PASS` (optional, if using Vault)
+>    - `DB_ROOT_PASSWORD`
+>    - `DB_PASSWORD`
 
 ---
 
@@ -94,19 +95,21 @@ README.md
 
 ## Usage
 
-1. Clone this repository.
-2. Push it to your own GitHub repository.
-3. Add the required secrets in **Settings → Secrets → Actions**.
-4. Create a new `dev` branch and make all your changes there.
-5. Push changes to `dev`.
-6. Create a Pull Request from `dev` to `main`. A new workflow run will appear under the **Actions** tab. Ensure all checks pass.
-7. Merge the Pull Request. The `deploy.yml` workflow will automatically run.
-8. After successful deployment, grab the public IP from the Terraform outputs and open it in your browser — you should see the WordPress setup page.
+> [!NOTE]
+> 1. Clone this repository.
+> 2. Push it to your own GitHub repository.
+> 3. Add the required secrets in **Settings → Secrets → Actions**.
+> 4. Create a new `dev` branch and make all your changes there.
+> 5. Push changes to `dev`.
+> 6. Create a Pull Request from `dev` to `main`. A new workflow run will appear under the **Actions** tab. Ensure all checks pass.
+> 7. Merge the Pull Request. The `deploy.yml` workflow will automatically run.
+> 8. After successful deployment, grab the public IP from the Terraform outputs and open it in your browser — you should see the WordPress setup page.
 
 ---
 
 ## Destroying the Infrastructure
 
-If you want to tear everything down, run the `destroy.yml` workflow in GitHub Actions.
-This executes `terraform destroy` and removes all AWS resources created by this project.
+> [!ATANTION]
+> If you want to tear everything down, run the `destroy.yml` workflow in GitHub Actions.
+> This executes `terraform destroy` and removes all AWS resources created by this project.
 ---
