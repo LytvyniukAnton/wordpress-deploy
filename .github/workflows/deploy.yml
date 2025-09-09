@@ -4,6 +4,10 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'terraform/**'
+      - 'ansible/**'
+      - '.github/workflows/deploy.yml'
   workflow_dispatch:
 
 jobs:
