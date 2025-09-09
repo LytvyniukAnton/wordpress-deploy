@@ -1,7 +1,7 @@
 ---
 - name: Deploy WordPress on EC2
   hosts: webservers
-  become: yes
+  become: true
 
   vars:
     db_name: "wordpress_db"
@@ -16,4 +16,3 @@
     - role: nginx
     - role: php
     - role: wordpress
-    

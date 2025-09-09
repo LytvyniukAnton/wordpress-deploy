@@ -17,4 +17,3 @@
     name: php7.4-fpm
     state: started
     enabled: true
-    

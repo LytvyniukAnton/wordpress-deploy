@@ -71,4 +71,3 @@
     dest: /etc/nginx/sites-enabled/default
     state: link
   notify: Restart Nginx
-  
