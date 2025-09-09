@@ -1,3 +1,4 @@
+```
 # WordPress Deployment on AWS with Terraform, Ansible and GitHub Actions
 
 ## Overview
@@ -5,7 +6,7 @@
 This repository shows how to deploy a WordPress website on **AWS EC2** using a fully automated CI/CD workflow:
 - **Terraform** provisions the infrastructure (EC2 instance, security group).
 - **Ansible** configures the server (Nginx, PHP, MariaDB, WordPress).
-- **GitHub Actions** runs automated checks on the `dev` branch and deploys automatically on each push to `main`.
+- **GitHub Actions** runs automated checks on pull requests and deploys automatically on each push to `main`.
 
 The goal is to have a repeatable and simple way to get a working WordPress site online in minutes, with a robust testing and deployment pipeline.
 
@@ -18,7 +19,7 @@ The goal is to have a repeatable and simple way to get a working WordPress site 
 .github/workflows/
  ├─ deploy.yml          \# GitHub Actions workflow for production deployment
  ├─ destroy.yml         \# Workflow for destroying infrastructure
- └─ test.yml            \# Workflow for running tests on dev branch and pull requests
+ └─ test.yml            \# Workflow for running tests on pull requests
 
 ansible/
  ├─ roles/
@@ -71,7 +72,7 @@ README.md
 
 1. **Development (`dev` branch)**:
     * All changes are pushed to the `dev` branch.
-    * A push to `dev` triggers the `test.yml` workflow, which runs `terraform plan` and other checks.
+    * A pull request is created from `dev` to `main`. This action triggers the `test.yml` workflow, which runs `terraform plan` and other checks.
     * This ensures that changes are validated before being merged into `main`.
 
 2. **Deployment (`main` branch)**:
@@ -97,8 +98,8 @@ README.md
 2. Push it to your own GitHub repository.
 3. Add the required secrets in **Settings → Secrets → Actions**.
 4. Create a new `dev` branch and make all your changes there.
-5. Push changes to `dev` and watch the `test.yml` workflow run under the **Actions** tab.
-6. Create a Pull Request from `dev` to `main`. Ensure all checks pass.
+5. Push changes to `dev`.
+6. Create a Pull Request from `dev` to `main`. A new workflow run will appear under the **Actions** tab. Ensure all checks pass.
 7. Merge the Pull Request. The `deploy.yml` workflow will automatically run.
 8. After successful deployment, grab the public IP from the Terraform outputs and open it in your browser — you should see the WordPress setup page.
 
