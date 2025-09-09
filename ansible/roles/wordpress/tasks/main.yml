@@ -21,20 +21,30 @@
     group: nginx
     mode: '0644'
 
+- name: Find all directories in the WordPress installation
+  ansible.builtin.find:
+    paths: "{{ wordpress_site_path }}"
+    file_type: directory
+  register: wordpress_dirs
+
 - name: Set correct permissions for WordPress directories
   ansible.builtin.file:
-    path: "{{ wordpress_site_path }}"
+    path: "{{ item.path }}"
     owner: nginx
     group: nginx
     mode: '0755'
-    recurse: true
-    file_type: directory # Only applies permissions to directories
+  loop: "{{ wordpress_dirs.files }}"
+
+- name: Find all files in the WordPress installation
+  ansible.builtin.find:
+    paths: "{{ wordpress_site_path }}"
+    file_type: file
+  register: wordpress_files
 
 - name: Set correct permissions for WordPress files
   ansible.builtin.file:
-    path: "{{ wordpress_site_path }}"
+    path: "{{ item.path }}"
     owner: nginx
     group: nginx
     mode: '0644'
-    recurse: true
-    file_type: file # Only applies permissions to files
+  loop: "{{ wordpress_files.files }}"
