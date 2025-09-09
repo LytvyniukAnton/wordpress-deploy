@@ -1,4 +1,3 @@
-```
 # WordPress Deployment on AWS with Terraform, Ansible and GitHub Actions
 
 ## Overview
@@ -17,30 +16,30 @@ The goal is to have a repeatable and simple way to get a working WordPress site 
 ```
 
 .github/workflows/
- ├─ deploy.yml          \# GitHub Actions workflow for production deployment
- ├─ destroy.yml         \# Workflow for destroying infrastructure
- └─ test.yml            \# Workflow for running tests on pull requests
+├─ deploy.yml         \# GitHub Actions workflow for production deployment
+├─ destroy.yml        \# Workflow for destroying infrastructure
+└─ test.yml           \# Workflow for running tests on pull requests
 
 ansible/
- ├─ roles/
- │   ├─ mariadb/tasks/main.yml
- │   ├─ nginx/
- │   │   ├─ handlers/main.yml
- │   │   ├─ tasks/main.yml
- │   │   └─ templates/default.conf.j2
- │   ├─ php/tasks/main.yml
- │   └─ wordpress/
- │       ├─ tasks/main.yml
- │       └─ templates/wp-config.php.j2
- └─ wordpress\_deploy.yml  \# Main Ansible playbook
+├─ roles/
+│  ├─ mariadb/tasks/main.yml
+│  ├─ nginx/
+│  │  ├─ handlers/main.yml
+│  │  ├─ tasks/main.yml
+│  │  └─ templates/default.conf.j2
+│  ├─ php/tasks/main.yml
+│  └─ wordpress/
+│     ├─ tasks/main.yml
+│     └─ templates/wp-config.php.j2
+└─ wordpress\_deploy.yml   \# Main Ansible playbook
 
 terraform/
- ├─ ec2.tf
- ├─ main.tf
- ├─ outputs.tf
- ├─ provider.tf
- ├─ security-group.tf
- └─ variables.tf
+├─ ec2.tf
+├─ main.tf
+├─ outputs.tf
+├─ provider.tf
+├─ security-group.tf
+└─ variables.tf
 
 .gitignore
 README.md
@@ -57,38 +56,38 @@ README.md
 4. An EC2 key pair for SSH access.
 5. GitHub repository with this code.
 6. Configure these GitHub secrets in your repo:
-   - `AWS_ACCESS_KEY_ID`
-   - `AWS_SECRET_ACCESS_KEY`
-   - `AWS_KEY_NAME`
-   - `ALLOWED_IPS` (e.g. `["0.0.0.0/0"]`)
-   - `SSH_PRIVATE_KEY`
-   - `ANSIBLE_VAULT_PASS` (optional, if using Vault)
-   - `DB_ROOT_PASSWORD`
-   - `DB_PASSWORD`
+   - `AWS_ACCESS_KEY_ID`
+   - `AWS_SECRET_ACCESS_KEY`
+   - `AWS_KEY_NAME`
+   - `ALLOWED_IPS` (e.g. `["0.0.0.0/0"]`)
+   - `SSH_PRIVATE_KEY`
+   - `ANSIBLE_VAULT_PASS` (optional, if using Vault)
+   - `DB_ROOT_PASSWORD`
+   - `DB_PASSWORD`
 
 ---
 
 ## How It Works
 
 1. **Development (`dev` branch)**:
-    * All changes are pushed to the `dev` branch.
-    * A pull request is created from `dev` to `main`. This action triggers the `test.yml` workflow, which runs `terraform plan` and other checks.
-    * This ensures that changes are validated before being merged into `main`.
+   * All changes are pushed to the `dev` branch.
+   * A pull request is created from `dev` to `main`. This action triggers the `test.yml` workflow, which runs `terraform plan` and other checks.
+   * This ensures that changes are validated before being merged into `main`.
 
 2. **Deployment (`main` branch)**:
-    * A pull request is created from `dev` to `main`.
-    * All required checks from the `test.yml` workflow must pass before the pull request can be merged.
-    * A merge to `main` triggers the `deploy.yml` workflow, which runs `terraform apply` and the Ansible playbook to provision and configure the production environment.
+   * A pull request is created from `dev` to `main`.
+   * All required checks from the `test.yml` workflow must pass before the pull request can be merged.
+   * A merge to `main` triggers the `deploy.yml` workflow, which runs `terraform apply` and the Ansible playbook to provision and configure the production environment.
 
 3. **Terraform** creates:
-   - An EC2 instance
-   - A security group with inbound rules for SSH, HTTP, HTTPS
+   - An EC2 instance
+   - A security group with inbound rules for SSH, HTTP, HTTPS
 
 4. **Ansible** configures the instance:
-   - Installs and sets up MariaDB
-   - Installs and configures Nginx with SSL
-   - Installs PHP with necessary extensions
-   - Downloads and configures WordPress
+   - Installs and sets up MariaDB
+   - Installs and configures Nginx with SSL
+   - Installs PHP with necessary extensions
+   - Downloads and configures WordPress
 
 ---
 
