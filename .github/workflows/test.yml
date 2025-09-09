@@ -7,7 +7,7 @@ on:
     paths:
       - 'terraform/**'
       - 'ansible/**'
-      - '.github/workflows/deploy.yml'
+      - '.github/workflows/test.yml'
 #  push:
 #    branches:
 #      - dev
