@@ -1,3 +1,4 @@
+
 # WordPress Deployment on AWS with Terraform, Ansible and GitHub Actions
 
 ## Overview
@@ -108,4 +109,4 @@ README.md
 
 If you want to tear everything down, run the `destroy.yml` workflow in GitHub Actions.
 This executes `terraform destroy` and removes all AWS resources created by this project.
-```
+---
