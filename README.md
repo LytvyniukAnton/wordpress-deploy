@@ -14,8 +14,7 @@ The goal is to have a repeatable and simple way to get a working WordPress
 site online in minutes, with a robust testing and deployment pipeline.
 
 > [!NOTE]
-> This project is intended as an educational example of how to combine
-Terraform, Ansible, and GitHub Actions for WordPress deployment.
+> This project is intended as an educational example of how to combine Terraform, Ansible, and GitHub Actions for WordPress deployment.
 
 ---
 
@@ -53,8 +52,7 @@ README.md
 ```
 
 > [!TIP]
-> You can extend this structure by adding more Ansible roles or Terraform
-modules as your infrastructure grows.
+> You can extend this structure by adding more Ansible roles or Terraform modules as your infrastructure grows.
 
 ---
 
@@ -105,8 +103,7 @@ modules as your infrastructure grows.
   production environment.
 
 > [!IMPORTANT]
-> Always review the Terraform plan carefully before applying changes to
-production.
+> Always review the Terraform plan carefully before applying changes to production.
 
 1. **Terraform** creates:
    - An EC2 instance
@@ -122,8 +119,7 @@ production.
 
 ## Testing Workflow Details
 
-The `test.yml` workflow runs a series of checks on every pull request to ensure
-that
+The `test.yml` workflow runs a series of checks on every pull request to ensure that
 infrastructure and configuration changes are valid and safe.
 
 - **Terraform Validate**: This is a fast, static check that validates the syntax
@@ -138,15 +134,13 @@ infrastructure and configuration changes are valid and safe.
   practices, ensuring that your configuration code is clean and readable.
 
 > [!NOTE]
-> These checks run automatically on pull requests, so you don’t need to trigger
-them manually.
+> These checks run automatically on pull requests, so you don’t need to trigger them manually.
 
 ---
 
 ## How to enable auto-merge
 
-For a fully automated workflow, you can enable auto-merge for your pull
-requests.
+For a fully automated workflow, you can enable auto-merge for your pull requests.
 This feature allows GitHub to automatically merge your changes into `main` once
 all required checks and reviews have been approved.
 
@@ -156,8 +150,7 @@ all required checks and reviews have been approved.
    the option to **"Enable auto-merge"** in the sidebar.
 
 This feature, combined with your **branch protection rules**, ensures that only
-validated and approved code is merged into your production branch, minimizing
-the
+validated and approved code is merged into your production branch, minimizing the
 risk of errors.
 
 ---
@@ -198,19 +191,14 @@ risk of errors.
 
 ## Destroying the Infrastructure
 
-If you want to tear everything down, run the `destroy.yml` workflow in GitHub
-Actions.
+If you want to tear everything down, run the `destroy.yml` workflow in GitHub Actions.
 
 > [!WARNING]
-> This action is permanent and will remove all AWS resources created by this
-project,
+> This action is permanent and will remove all AWS resources created by this project,
 > including your EC2 instance, database, and all associated data.
 > Use with caution.
 
-
 > [!CAUTION]
-> Destroying infrastructure will also delete all WordPress content stored on
-the instance unless you use external storage or backups.
+> Destroying infrastructure will also delete all WordPress content stored on the instance unless you use external storage or backups.
 
-This executes `terraform destroy` and removes all AWS resources created by this
-project.
+This executes `terraform destroy` and removes all AWS resources created by this project.
