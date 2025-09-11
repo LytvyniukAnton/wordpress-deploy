@@ -13,7 +13,7 @@ output "aws_instance_public_dns" {
   value       = aws_instance.nginx_server.public_dns
 }
 
-output "plesk_public_ip" {
-  description = "The public IP address of the Plesk server."
-  value       = aws_instance.plesk.public_ip
-}
+#output "plesk_public_ip" {
+#  description = "The public IP address of the Plesk server."
+#  value       = aws_instance.plesk.public_ip
+#}
