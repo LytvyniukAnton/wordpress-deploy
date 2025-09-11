@@ -31,13 +31,12 @@
       - bash
       - /tmp/install.sh
       - install_ubuntu_22
-      - no
-      - no
+      - "no"
+      - "no"
       - 8888
   args:
     creates: /www/server/panel
   async: 600
-  # ansible-lint: disable=yaml[truthy]
   poll: 0
 
 - name: Wait for aaPanel panel directory to exist
