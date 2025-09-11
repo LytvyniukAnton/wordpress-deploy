@@ -1,0 +1,72 @@
+# name: Deploy Plesk on AWS
+
+# on:
+#   push:
+#     branches:
+#       - main
+#   workflow_dispatch:
+
+# jobs:
+#   deploy:
+#     runs-on: ubuntu-latest
+
+#     steps:
+#       - name: Checkout Code
+#         uses: actions/checkout@v3
+
+#       - name: Setup Terraform
+#         uses: hashicorp/setup-terraform@v2
+
+#       - name: Terraform Init with S3 Backend
+#         id: init
+#         run: |
+#           terraform init \
+#             -backend-config="bucket=my-first-remote-state" \
+#             -backend-config="key=combined/terraform.tfstate" \
+#             -backend-config="region=us-east-1" \
+#             -backend-config="dynamodb_table=terraform-locks"
+#         working-directory: terraform
+
+#       - name: Terraform Apply
+#         id: apply
+#         run: |
+#           terraform apply -auto-approve \
+#             -var "allowed_ips=${{ secrets.ALLOWED_IPS }}" \
+#             -var "key_name=${{ secrets.AWS_KEY_NAME }}"
+#         working-directory: terraform
+
+#       - name: Get EC2 Public IP
+#         id: get_ip
+#         run: echo "public_ip=$(terraform output -raw plesk_public_ip)" >> $GITHUB_ENV
+#         working-directory: terraform
+
+#       - name: Wait for SSH to be ready
+#         run: |
+#           for i in $(seq 1 10); do
+#             nc -z -w5 ${{ env.public_ip }} 22 && echo "SSH is ready" && exit 0
+#             echo "Waiting for SSH to be ready... ($i/10)"
+#             sleep 5
+#           done
+#           echo "SSH port is not open after 50 seconds. Exiting."
+#           exit 1
+      
+#       - name: Setup SSH
+#         uses: webfactory/ssh-agent@v0.9.0
+#         with:
+#           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          
+#       - name: Add EC2 to known_hosts
+#         run: ssh-keyscan -H ${{ env.public_ip }} >> ~/.ssh/known_hosts
+
+#       - name: Create Inventory File
+#         run: |
+#           mkdir -p ansible
+#           echo "webservers:" > ansible/inventory.yml
+#           echo "  hosts:" >> ansible/inventory.yml
+#           echo "    ${{ env.public_ip }}:" >> ansible/inventory.yml
+#           echo "      ansible_user: ec2-user" >> ansible/inventory.yml
+
+#       - name: Run Ansible Playbook
+#         run: ansible-playbook -i ansible/inventory.yml ansible/wordpress_deploy.yml
+#         env:
+#           ANSIBLE_HOST_KEY_CHECKING: "False"

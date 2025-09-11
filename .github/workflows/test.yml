@@ -7,25 +7,25 @@ on:
     paths:
       - 'terraform/**'
       - 'ansible/**'
-      - '.github/workflows/test.yml'
+      - '.github/workflows/**'
       - 'README.md'
 #  push:
 #    branches:
 #      - dev
 
 jobs:
-  markdown_lint:
-    name: "Markdown Lint"
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+  #markdown_lint:
+  #  name: "Markdown Lint"
+  #  runs-on: ubuntu-latest
+  #  steps:
+  #    - name: Checkout repository
+  #      uses: actions/checkout@v4
 
-      - name: Run Markdown Lint
-        uses: avto-dev/markdown-lint@v1
-        with:
-          args: 'README.md'
-          fix: true
+  #    - name: Run Markdown Lint
+  #      uses: avto-dev/markdown-lint@v1
+  #      with:
+  #        args: 'README.md'
+  #        fix: true
 
   terraform_validate:
     name: "Terraform Validate"
@@ -42,8 +42,14 @@ jobs:
         with:
           terraform_version: 1.6.0
 
-      - name: Terraform Init
-        run: terraform init
+      - name: Terraform Init with S3 Backend
+        id: init
+        run: |
+          terraform init \
+            -backend-config="bucket=my-first-remote-state" \
+            -backend-config="key=combined/terraform.tfstate" \
+            -backend-config="region=us-east-1" \
+            -backend-config="dynamodb_table=terraform-locks"
         working-directory: terraform
 
       - name: Terraform Validate

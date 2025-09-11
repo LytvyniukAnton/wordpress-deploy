@@ -1,7 +1,7 @@
 resource "aws_security_group" "nginx_security_group" {
   name = "nginx-sg"
   description = "Security group for Nginx web server"
-  vpc_id      = data.aws_vpc.default.id #aws_vpc.main_vpc.id // Replace with your VPC ID or reference
+  vpc_id      = data.aws_vpc.default.id
 
   ingress {
     from_port   = 80
@@ -35,6 +35,28 @@ resource "aws_security_group" "nginx_security_group" {
     cidr_blocks = ["0.0.0.0/0"]
     description = "Allow all outbound traffic"
   }
+
+  # ingress {
+  #   from_port   = 8443 # Port for access to Plesk
+  #   to_port     = 8443
+  #   protocol    = "tcp"
+  #   cidr_blocks = var.allowed_ips
+  # }
+
+  # ingress {
+  #   from_port   = 8447 # Port fot access to admin-panel
+  #   to_port     = 8447
+  #   protocol    = "tcp"
+  #   cidr_blocks = var.allowed_ips
+  # }
+
+  ingress {
+    from_port   = 8888 # Port for access to aaPanel
+    to_port     = 8888
+    protocol    = "tcp"
+    cidr_blocks = var.allowed_ips
+  }
+  
 
   tags = {
     Name = "Nginx-Security-Group"
