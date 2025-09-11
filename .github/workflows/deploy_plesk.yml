@@ -22,7 +22,7 @@ jobs:
         run: |
           terraform init \
             -backend-config="bucket=my-first-remote-state" \
-            -backend-config="key=nginx/terraform.tfstate" \
+            -backend-config="key=plesk/terraform.tfstate" \
             -backend-config="region=us-east-1" \
             -backend-config="dynamodb_table=terraform-locks"
         working-directory: terraform
