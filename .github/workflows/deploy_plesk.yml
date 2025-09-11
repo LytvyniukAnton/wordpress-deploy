@@ -25,19 +25,19 @@ jobs:
             -backend-config="key=plesk/terraform.tfstate" \
             -backend-config="region=us-east-1" \
             -backend-config="dynamodb_table=terraform-locks"
-        working-directory: terraform
+        working-directory: terraform/plesk
 
       - name: Terraform Apply
         id: apply
         run: terraform apply -auto-approve \
           -var "allowed_ips=${{ secrets.ALLOWED_IPS }}" \
           -var "key_name=${{ secrets.AWS_KEY_NAME }}"
-        working-directory: terraform
+        working-directory: terraform/plesk
 
       - name: Get EC2 Public IP
         id: get_ip
         run: echo "public_ip=$(terraform output -raw plesk_public_ip)" >> $GITHUB_ENV
-        working-directory: terraform
+        working-directory: terraform/plesk
 
       - name: Wait for SSH to be ready
         run: |

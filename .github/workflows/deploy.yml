@@ -28,7 +28,7 @@ jobs:
         with:
           terraform_version: 1.6.0 # Recommended to pin to a specific version
 
-      - name: Terraform Init with S3 Backend
+      - name: Terraform Init
         id: init
         run: |
           terraform init \
@@ -36,7 +36,7 @@ jobs:
             -backend-config="key=nginx/terraform.tfstate" \
             -backend-config="region=us-east-1" \
             -backend-config="dynamodb_table=terraform-locks"
-        working-directory: terraform
+        working-directory: terraform/wordpress
 
       - name: Terraform Apply
         id: apply
@@ -44,12 +44,12 @@ jobs:
           terraform apply -auto-approve \
             -var "allowed_ips=${ALLOWED_IPS}" \
             -var "key_name=${{ env.AWS_KEY_NAME }}"
-        working-directory: terraform
+        working-directory: terraform/wordpress
 
       - name: Get EC2 Public IP
         id: get_ip
         run: echo "public_ip=$(terraform output -raw nginx_public_ip)" >> $GITHUB_ENV
-        working-directory: terraform
+        working-directory: terraform/wordpress
 
       - name: Write IP to file
         run: echo "${{ env.public_ip }}" > ec2_ip.txt
