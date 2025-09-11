@@ -9,11 +9,16 @@ variable "allowed_ips" {
   type        = list(string)
 }
 
-#variable "instance_type" {
-#  description = "EC2 instance type"
-#  type        = string
-#  default     = "t3.micro" # free tier
-#}
+variable "instance_type" {
+  description = "EC2 instance type"
+  type        = string
+  default     = "t3.micro" # free tier
+}
+
+variable "key_name" {
+  description = "EC2 key pair name for SSH access"
+  type        = string
+}
 
 data "aws_vpc" "default" {
   default = true

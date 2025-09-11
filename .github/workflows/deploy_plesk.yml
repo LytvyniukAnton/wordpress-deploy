@@ -17,10 +17,15 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
 
-      - name: Terraform Init
+      - name: Terraform Init with S3 Backend
         id: init
-        run: terraform init
-        working-directory: terraform/plesk
+        run: |
+          terraform init \
+            -backend-config="bucket=my-first-remote-state" \
+            -backend-config="key=combined/terraform.tfstate" \
+            -backend-config="region=us-east-1" \
+            -backend-config="dynamodb_table=terraform-locks"
+        working-directory: terraform
 
       - name: Terraform Apply
         id: apply
@@ -28,12 +33,12 @@ jobs:
           terraform apply -auto-approve \
             -var "allowed_ips=${{ secrets.ALLOWED_IPS }}" \
             -var "key_name=${{ secrets.AWS_KEY_NAME }}"
-        working-directory: terraform/plesk
+        working-directory: terraform
 
       - name: Get EC2 Public IP
         id: get_ip
         run: echo "public_ip=$(terraform output -raw plesk_public_ip)" >> $GITHUB_ENV
-        working-directory: terraform/plesk
+        working-directory: terraform
 
       - name: Wait for SSH to be ready
         run: |
