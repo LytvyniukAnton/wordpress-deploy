@@ -3,8 +3,10 @@ listen = /var/run/php/php8.1-fpm.sock
 listen.owner = nginx
 listen.group = nginx
 listen.mode = 0660
+
 user = nginx
 group = nginx
+
 pm = dynamic
 pm.max_children = 5
 pm.start_servers = 2

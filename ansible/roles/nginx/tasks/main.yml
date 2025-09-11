@@ -34,6 +34,7 @@
   community.crypto.openssl_privatekey:
     path: /etc/nginx/ssl/nginx.key
     size: 2048
+  when: not (stat('/etc/nginx/ssl/nginx.key').stat.exists)
   notify: Restart Nginx
 
 - name: Create a certificate signing request (CSR)
@@ -41,6 +42,7 @@
     path: /etc/nginx/ssl/nginx.csr
     privatekey_path: /etc/nginx/ssl/nginx.key
     common_name: "{{ ansible_host }}"
+  when: not (stat('/etc/nginx/ssl/nginx.csr').stat.exists)
   notify: Restart Nginx
 
 - name: Create a self-signed certificate
@@ -50,6 +52,7 @@
     privatekey_path: /etc/nginx/ssl/nginx.key
     provider: selfsigned
     selfsigned_not_after: "+365d"
+  when: not (stat('/etc/nginx/ssl/nginx.crt').stat.exists)
   notify: Restart Nginx
 
 - name: Remove temporary CSR
