@@ -25,12 +25,18 @@
     mode: '0755'
 
 - name: Install aaPanel asynchronously if not installed
-  ansible.builtin.shell: bash /tmp/install.sh install_ubuntu_22 no no 8888
+  ansible.builtin.command:
+    argv:
+      - bash
+      - /tmp/install.sh
+      - install_ubuntu_22
+      - no
+      - no
+      - 8888
   args:
     creates: /www/server/panel
   async: 600
   poll: 0
-  # shell використовується навмисно для виконання скрипта з аргументами
 
 - name: Wait for aaPanel panel directory to exist
   ansible.builtin.wait_for:
