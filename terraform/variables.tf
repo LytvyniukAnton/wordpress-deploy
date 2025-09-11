@@ -12,7 +12,7 @@ variable "allowed_ips" {
 variable "instance_type" {
   description = "EC2 instance type"
   type        = string
-  default     = "t3.micro" # free tier
+  default     = "t3.small" # free tier
 }
 
 variable "key_name" {
