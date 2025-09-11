@@ -48,7 +48,7 @@ jobs:
   terraform_plan_wordpress:
     name: "Terraform Plan (WordPress)"
     runs-on: ubuntu-latest
-    needs: [terraform_validate_wordpress]
+    needs: terraform_validate_wordpress
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -74,7 +74,7 @@ jobs:
   terraform_plan_plesk:
     name: "Terraform Plan (Plesk)"
     runs-on: ubuntu-latest
-    needs: [terraform_validate_plesk]
+    needs: terraform_validate_plesk
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
