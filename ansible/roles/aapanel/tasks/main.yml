@@ -1,3 +1,23 @@
+# ---
+# - name: Download aaPanel installer
+#   ansible.builtin.get_url:
+#     url: https://www.aapanel.com/script/install-en.sh
+#     dest: /tmp/install.sh
+#     mode: '0755'
+
+# - name: Install aaPanel
+#   ansible.builtin.shell: |
+#     bash /tmp/install.sh install_ubuntu_22 no no 8888
+#   args:
+#     creates: /www/server/panel
+#   async: 300 # Wait up to 300 seconds for the task to finish
+#   poll: 0    # Do not wait for the task to finish before starting the next task
+
+# - name: Wait for server to reboot
+#   ansible.builtin.wait_for_connection:
+#     delay: 60
+#     timeout: 600
+
 ---
 - name: Download aaPanel installer
   ansible.builtin.get_url:
@@ -5,15 +25,27 @@
     dest: /tmp/install.sh
     mode: '0755'
 
-- name: Install aaPanel
-  ansible.builtin.shell: |
-    bash /tmp/install.sh install_ubuntu_22 no no 8888
+- name: Install aaPanel (if not installed)
+  ansible.builtin.command: bash /tmp/install.sh install_ubuntu_22 no no 8888
   args:
     creates: /www/server/panel
-  async: 300 # Wait up to 300 seconds for the task to finish
-  poll: 0    # Do not wait for the task to finish before starting the next task
 
-- name: Wait for server to reboot
-  ansible.builtin.wait_for_connection:
-    delay: 60
+- name: Wait until aaPanel panel directory exists
+  ansible.builtin.wait_for:
+    path: /www/server/panel
     timeout: 600
+    state: present
+    sleep: 10
+
+- name: Wait for aaPanel to listen on port 8888
+  ansible.builtin.wait_for:
+    host: 127.0.0.1
+    port: 8888
+    delay: 10
+    timeout: 300
+
+- name: Ensure aaPanel service (bt) is enabled and running
+  ansible.builtin.systemd:
+    name: bt
+    state: started
+    enabled: true
