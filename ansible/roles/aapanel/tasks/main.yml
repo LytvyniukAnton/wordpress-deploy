@@ -19,12 +19,6 @@
 #     timeout: 600
 
 ---
-- name: Download aaPanel installer
-  ansible.builtin.get_url:
-    url: https://www.aapanel.com/script/install-en.sh
-    dest: /tmp/install.sh
-    mode: '0755'
-
 - name: Install aaPanel if not installed
   ansible.builtin.command:
     argv:
@@ -38,6 +32,11 @@
     creates: /www/server/panel
   async: 600
   poll: 0
+
+- name: Wait for server to reboot and become available
+  ansible.builtin.wait_for_connection:
+    delay: 30
+    timeout: 300
 
 - name: Wait for aaPanel panel directory to exist
   ansible.builtin.wait_for:
