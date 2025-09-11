@@ -1,0 +1,12 @@
+---
+- name: Download aaPanel installer
+  ansible.builtin.get_url:
+    url: https://www.aapanel.com/script/install-en.sh
+    dest: /tmp/install.sh
+    mode: '0755'
+
+- name: Install aaPanel
+  ansible.builtin.shell: |
+    bash /tmp/install.sh install_ubuntu_22 no no 8888
+  args:
+    creates: /www/server/panel

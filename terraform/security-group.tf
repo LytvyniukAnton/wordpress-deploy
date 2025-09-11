@@ -36,16 +36,23 @@ resource "aws_security_group" "nginx_security_group" {
     description = "Allow all outbound traffic"
   }
 
-  ingress {
-    from_port   = 8443 # Port for access to Plesk
-    to_port     = 8443
-    protocol    = "tcp"
-    cidr_blocks = var.allowed_ips
-  }
+  # ingress {
+  #   from_port   = 8443 # Port for access to Plesk
+  #   to_port     = 8443
+  #   protocol    = "tcp"
+  #   cidr_blocks = var.allowed_ips
+  # }
+
+  # ingress {
+  #   from_port   = 8447 # Port fot access to admin-panel
+  #   to_port     = 8447
+  #   protocol    = "tcp"
+  #   cidr_blocks = var.allowed_ips
+  # }
 
   ingress {
-    from_port   = 8447 # Port fot access to admin-panel
-    to_port     = 8447
+    from_port   = 8888 # Port for access to aaPanel
+    to_port     = 8888
     protocol    = "tcp"
     cidr_blocks = var.allowed_ips
   }
