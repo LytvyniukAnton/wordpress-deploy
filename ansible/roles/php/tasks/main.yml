@@ -14,6 +14,6 @@
 
 - name: Start and enable PHP-FPM service
   ansible.builtin.service:
-    name: php7.4-fpm
+    name: php8.3-fpm
     state: started
     enabled: true
