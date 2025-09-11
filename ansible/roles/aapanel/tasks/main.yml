@@ -31,7 +31,7 @@
   args:
     creates: /www/server/panel
   async: 600
-  poll: false
+  poll: 0
 
 - name: Wait for server to reboot and become available
   ansible.builtin.wait_for_connection:
