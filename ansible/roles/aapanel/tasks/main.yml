@@ -6,7 +6,7 @@
 - name: Run aaPanel container
   community.docker.docker_container:
     name: aapanel
-    image: btpanel/aapanel:latest
+    image: aapanel/aapanel:latest
     state: started
     restart_policy: unless-stopped
     ports:
