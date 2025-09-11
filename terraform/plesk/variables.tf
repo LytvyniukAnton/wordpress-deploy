@@ -20,11 +20,6 @@ variable "key_name" {
   type        = string
 }
 
-#variable "private_key_path" {
-  #description = "Path to the private key for SSH"
-  #type        = string
-#}
-
 data "aws_vpc" "default" {
   default = true
 }
