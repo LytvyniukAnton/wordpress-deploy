@@ -37,6 +37,7 @@
   args:
     creates: /www/server/panel
   async: 600
+  # ansible-lint: disable=yaml[truthy]
   poll: 0
 
 - name: Wait for aaPanel panel directory to exist
@@ -53,19 +54,22 @@
     delay: 10
     timeout: 300
 
-- name: Check if aaPanel process (bt) is running
+- name: Ensure aaPanel process (bt) is running
   ansible.builtin.command:
     argv:
       - pgrep
       - -f
       - bt
   register: aapanel_bt_process
+  retries: 10
+  delay: 15
+  until: aapanel_bt_process.rc == 0
   changed_when: false
-  failed_when: false
+  failed_when: aapanel_bt_process.rc != 0
 
 - name: Ensure aaPanel service (bt) is enabled and running
   ansible.builtin.systemd:
     name: bt
     state: started
     enabled: true
-  when: aapanel_bt_process.rc != 0
+  when: aapanel_bt_process.rc == 0
