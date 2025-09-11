@@ -13,6 +13,15 @@
     state: present
     update_cache: true
 
+- name: Configure PHP-FPM to use nginx user
+  ansible.builtin.template:
+    src: www.conf.j2
+    dest: /etc/php/8.1/fpm/pool.d/www.conf
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Restart PHP-FPM
+
 - name: Start and enable PHP-FPM service
   ansible.builtin.service:
     name: php8.1-fpm
