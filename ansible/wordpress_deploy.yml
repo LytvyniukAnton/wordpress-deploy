@@ -16,4 +16,5 @@
     - role: nginx
     - role: php
     - role: wordpress
+    - role: docker
     - role: aapanel

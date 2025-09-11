@@ -1,73 +1,15 @@
-# ---
-# - name: Download aaPanel installer
-#   ansible.builtin.get_url:
-#     url: https://www.aapanel.com/script/install-en.sh
-#     dest: /tmp/install.sh
-#     mode: '0755'
-
-# - name: Install aaPanel
-#   ansible.builtin.shell: |
-#     bash /tmp/install.sh install_ubuntu_22 no no 8888
-#   args:
-#     creates: /www/server/panel
-#   async: 300 # Wait up to 300 seconds for the task to finish
-#   poll: 0    # Do not wait for the task to finish before starting the next task
-
-# - name: Wait for server to reboot
-#   ansible.builtin.wait_for_connection:
-#     delay: 60
-#     timeout: 600
-
----
-- name: Install aaPanel if not installed
-  ansible.builtin.command:
-    argv:
-      - bash
-      - /tmp/install.sh
-      - install_ubuntu_22
-      - "no"
-      - "no"
-      - 8888
-  args:
-    creates: /www/server/panel
-  async: 600
-  poll: 0
-
-- name: Wait for server to reboot and become available
-  ansible.builtin.wait_for_connection:
-    delay: 30
-    timeout: 300
-
-- name: Wait for aaPanel panel directory to exist
-  ansible.builtin.wait_for:
-    path: /www/server/panel
+- name: Create Docker volume for aaPanel
+  community.docker.docker_volume:
+    name: aapanel_data
     state: present
-    timeout: 600
-    sleep: 10
 
-- name: Wait for aaPanel to listen on port 8888
-  ansible.builtin.wait_for:
-    host: 127.0.0.1
-    port: 8888
-    delay: 10
-    timeout: 300
-
-- name: Ensure aaPanel process (bt) is running
-  ansible.builtin.command:
-    argv:
-      - pgrep
-      - -f
-      - bt
-  register: aapanel_bt_process
-  retries: 10
-  delay: 15
-  until: aapanel_bt_process.rc == 0
-  changed_when: false
-  failed_when: aapanel_bt_process.rc != 0
-
-- name: Ensure aaPanel service (bt) is enabled and running
-  ansible.builtin.systemd:
-    name: bt
+- name: Run aaPanel container
+  community.docker.docker_container:
+    name: aapanel
+    image: btpanel/aapanel:latest
     state: started
-    enabled: true
-  when: aapanel_bt_process.rc == 0
+    restart_policy: unless-stopped
+    ports:
+      - "8888:8888"
+    volumes:
+      - aapanel_data:/www
