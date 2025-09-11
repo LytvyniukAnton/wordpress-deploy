@@ -11,7 +11,7 @@
       - php8.1-curl
       - php8.1-zip
     state: present
-    update_cache: yes
+    update_cache: true
 
 - name: Start and enable PHP-FPM service
   ansible.builtin.service:
