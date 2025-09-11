@@ -22,7 +22,8 @@
     replace: 'user nginx;'
   notify: Restart Nginx
 
-- name: Create SSL directory
+# --- SSL ---
+- name: Ensure SSL directory exists
   ansible.builtin.file:
     path: /etc/nginx/ssl
     state: directory
@@ -30,20 +31,35 @@
     group: root
     mode: '0755'
 
+- name: Check if SSL private key exists
+  ansible.builtin.stat:
+    path: /etc/nginx/ssl/nginx.key
+  register: ssl_key
+
 - name: Generate a private key for SSL
   community.crypto.openssl_privatekey:
     path: /etc/nginx/ssl/nginx.key
     size: 2048
-  when: not (stat('/etc/nginx/ssl/nginx.key').stat.exists)
+  when: not ssl_key.stat.exists
   notify: Restart Nginx
+
+- name: Check if CSR exists
+  ansible.builtin.stat:
+    path: /etc/nginx/ssl/nginx.csr
+  register: ssl_csr
 
 - name: Create a certificate signing request (CSR)
   community.crypto.openssl_csr:
     path: /etc/nginx/ssl/nginx.csr
     privatekey_path: /etc/nginx/ssl/nginx.key
     common_name: "{{ ansible_host }}"
-  when: not (stat('/etc/nginx/ssl/nginx.csr').stat.exists)
+  when: not ssl_csr.stat.exists
   notify: Restart Nginx
+
+- name: Check if self-signed certificate exists
+  ansible.builtin.stat:
+    path: /etc/nginx/ssl/nginx.crt
+  register: ssl_cert
 
 - name: Create a self-signed certificate
   community.crypto.x509_certificate:
@@ -52,14 +68,16 @@
     privatekey_path: /etc/nginx/ssl/nginx.key
     provider: selfsigned
     selfsigned_not_after: "+365d"
-  when: not (stat('/etc/nginx/ssl/nginx.crt').stat.exists)
+  when: not ssl_cert.stat.exists
   notify: Restart Nginx
 
 - name: Remove temporary CSR
   ansible.builtin.file:
     path: /etc/nginx/ssl/nginx.csr
     state: absent
+  when: ssl_csr.stat.exists
 
+# --- Site config ---
 - name: Remove default Nginx config
   ansible.builtin.file:
     path: /etc/nginx/sites-enabled/default
