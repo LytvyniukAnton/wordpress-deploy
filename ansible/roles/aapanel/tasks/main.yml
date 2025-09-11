@@ -5,15 +5,15 @@
     dest: /tmp/install.sh
     mode: '0755'
 
-- name: Install aaPanel in background
+- name: Install aaPanel
   ansible.builtin.shell: |
-    nohup bash /tmp/install.sh install_ubuntu_22 no no 8888 > /tmp/aapanel.log 2>&1 &
+    bash /tmp/install.sh install_ubuntu_22 no no 8888
   args:
     creates: /www/server/panel
+  async: 300 # Wait up to 300 seconds for the task to finish
+  poll: 0    # Do not wait for the task to finish before starting the next task
 
-- name: Wait for aaPanel to finish installing
-  ansible.builtin.wait_for:
-    path: /www/server/panel
-    state: present
-    delay: 30
+- name: Wait for server to reboot
+  ansible.builtin.wait_for_connection:
+    delay: 60
     timeout: 600
