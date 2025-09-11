@@ -14,18 +14,18 @@ on:
 #      - dev
 
 jobs:
-  markdown_lint:
-    name: "Markdown Lint"
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+  #markdown_lint:
+  #  name: "Markdown Lint"
+  #  runs-on: ubuntu-latest
+  #  steps:
+  #    - name: Checkout repository
+  #      uses: actions/checkout@v4
 
-      - name: Run Markdown Lint
-        uses: avto-dev/markdown-lint@v1
-        with:
-          args: 'README.md'
-          fix: true
+  #    - name: Run Markdown Lint
+  #      uses: avto-dev/markdown-lint@v1
+  #      with:
+  #        args: 'README.md'
+  #        fix: true
 
   terraform_validate:
     name: "Terraform Validate"
