@@ -22,18 +22,6 @@
   retries: 20
   delay: 5
 
-- name: Wait for aaPanel web service to be responsive via proxy
-  ansible.builtin.uri:
-    url: https://127.0.0.1/aapanel/login
-    status_code: 200
-    validate_certs: false
-    follow_redirects: all
-  register: aapanel_result
-  until: aapanel_result.status == 200
-  retries: 3
-  delay: 10
-  delegate_to: "{{ inventory_hostname }}"
-
 - name: Update _COOKIE_PATH in common.py inside container
   community.docker.docker_container_exec:
     container: aapanel
@@ -56,3 +44,15 @@
   ansible.builtin.systemd:
     name: nginx
     state: restarted
+
+- name: Wait for aaPanel web service to be responsive via proxy
+  ansible.builtin.uri:
+    url: https://127.0.0.1/aapanel/login
+    status_code: 200
+    validate_certs: false
+    follow_redirects: all
+  register: aapanel_result
+  until: aapanel_result.status == 200
+  retries: 3
+  delay: 10
+  delegate_to: "{{ inventory_hostname }}"
