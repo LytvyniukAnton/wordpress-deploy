@@ -18,7 +18,7 @@
   community.docker.docker_container_info:
     name: aapanel
   register: aapanel_info
-  until: aapanel_info.exists and aapanel_info.containers | length > 0 and aapanel_info.containers[0].State.Status == 'running'
+  until: aapanel_info.exists and (aapanel_info.containers | default([])) | length > 0 and (aapanel_info.containers | default([]))[0].State.Status == 'running'
   retries: 20
   delay: 5
 
