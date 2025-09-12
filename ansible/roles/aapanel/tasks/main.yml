@@ -13,4 +13,3 @@
       - "8888:7800"
     volumes:
       - "{{ ansible_user_dir }}/aapanel_data:/www/wwwroot"
-    ports: []
