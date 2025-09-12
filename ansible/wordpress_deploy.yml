@@ -12,9 +12,10 @@
     - secrets.yml
 
   roles:
+    - role: common
     - role: mariadb
-    - role: php
     - role: nginx
+    - role: php
     - role: wordpress
     - role: docker
     - role: aapanel

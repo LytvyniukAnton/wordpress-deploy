@@ -1,0 +1,7 @@
+- name: Create nginx user and group
+  ansible.builtin.user:
+    name: nginx
+    state: present
+    system: true
+    home: /var/www
+    shell: /sbin/nologin
