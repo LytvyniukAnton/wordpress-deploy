@@ -39,11 +39,10 @@ server {
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
-
-        # Переписує редіректи контейнера під /aapanel/
+        
+        # Редіректи та статичні файли під /aapanel/
         proxy_redirect / /aapanel/;
-
-        # Підтримка статичних файлів (CSS, JS, зображення)
+        proxy_redirect http:// https://; # Додаємо для надійності
         sub_filter_types *;
         sub_filter 'href="/' 'href="/aapanel/';
         sub_filter 'src="/' 'src="/aapanel/';
