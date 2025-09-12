@@ -37,8 +37,8 @@ resource "aws_security_group" "nginx_security_group" {
   }
 
   ingress {
-    from_port   = 8889 # Port for access to aaPanel
-    to_port     = 8889
+    from_port   = 8888 # Port for access to aaPanel
+    to_port     = 8888
     protocol    = "tcp"
     cidr_blocks = var.allowed_ips
   }
