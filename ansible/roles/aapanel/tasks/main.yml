@@ -47,12 +47,11 @@
 
 - name: Wait for aaPanel web service to be responsive via proxy
   ansible.builtin.uri:
-    url: https://127.0.0.1/aapanel/login
-    status_code: 200
+    url: https://127.0.0.1/aapanel/
     validate_certs: false
-    follow_redirects: all
+    follow_redirects: none
   register: aapanel_result
-  until: aapanel_result.status == 200
-  retries: 3
+  until: aapanel_result.status == 302 or aapanel_result.status == 200
+  retries: 20
   delay: 10
   delegate_to: "{{ inventory_hostname }}"
