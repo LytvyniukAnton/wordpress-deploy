@@ -10,8 +10,6 @@
     state: started
     restart_policy: always
     published_ports:
-      - "8080:80"    # HTTP внутрішній → 8080 на хості
-      - "8443:443"   # HTTPS внутрішній → 8443 на хості
-      - "8888:7800"  # aaPanel веб-інтерфейс
+      - "8888:7800"
     volumes:
       - "{{ ansible_user_dir }}/aapanel_data:/www/wwwroot"
