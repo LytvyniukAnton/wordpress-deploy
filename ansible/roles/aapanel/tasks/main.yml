@@ -10,8 +10,6 @@
     state: started
     restart_policy: always
     ports:
-      - "80:80"      # Дозволяє aaPanel керувати HTTP
-      - "443:443"    # Дозволяє aaPanel керувати HTTPS
-      - "8888:7800"  # Дозволяє доступ до панелі на порту 8888, якщо 80/443 зайняті
+      - "8888:7800"
     volumes:
       - "{{ ansible_user_dir }}/aapanel_data:/www/wwwroot"
