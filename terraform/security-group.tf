@@ -51,6 +51,14 @@ resource "aws_security_group" "nginx_security_group" {
     description = "Allow HTTPS traffic for aaPanel"
   }
 
+  ingress {
+    from_port   = 8080 # Порт для доступу до aaPanel через Nginx
+    to_port     = 8080
+    protocol    = "tcp"
+    cidr_blocks = var.allowed_ips
+    description = "Allow HTTPS traffic for aaPanel"
+  }
+
   tags = {
     Name = "Nginx-Security-Group"
   }

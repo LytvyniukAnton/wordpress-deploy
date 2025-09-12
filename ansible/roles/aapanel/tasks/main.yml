@@ -11,5 +11,7 @@
     restart_policy: always
     published_ports:
       - "8888:7800"
+      - "8080:80"
+      - "8443:443"
     volumes:
       - "{{ ansible_user_dir }}/aapanel_data:/www/wwwroot"
