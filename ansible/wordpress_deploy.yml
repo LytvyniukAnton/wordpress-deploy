@@ -10,7 +10,6 @@
 
   vars_files:
     - secrets.yml
-  
   pre_tasks:
     - name: Create nginx user and group
       ansible.builtin.user:
