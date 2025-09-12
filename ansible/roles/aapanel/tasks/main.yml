@@ -26,8 +26,8 @@
   ansible.builtin.uri:
     url: http://127.0.0.1:8888
     status_code: 200
-  register: result
-  until: result.status == 200
+  register: aapanel_result
+  until: aapanel_result.status == 200
   retries: 30
   delay: 10
   delegate_to: localhost
