@@ -14,6 +14,14 @@
     volumes:
       - "{{ ansible_user_dir }}/aapanel_data:/www/wwwroot"
 
+- name: Wait for aaPanel container to start
+  community.docker.docker_container_info:
+    name: aapanel
+  register: aapanel_info
+  until: aapanel_info.exists
+  retries: 20
+  delay: 5
+
 - name: Wait for aaPanel to be healthy
   community.docker.docker_container_info:
     name: aapanel
