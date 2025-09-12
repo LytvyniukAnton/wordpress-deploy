@@ -1,5 +1,5 @@
 resource "aws_security_group" "nginx_security_group" {
-  name = "nginx-sg"
+  name        = "nginx-sg"
   description = "Security group for Nginx web server"
   vpc_id      = data.aws_vpc.default.id
 
@@ -20,9 +20,9 @@ resource "aws_security_group" "nginx_security_group" {
   }
 
   ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
+    from_port = 22
+    to_port   = 22
+    protocol  = "tcp"
     #cidr_blocks = var.allowed_ips
     cidr_blocks = ["0.0.0.0/0"]
     description = "Allow SSH access"
@@ -37,12 +37,12 @@ resource "aws_security_group" "nginx_security_group" {
   }
 
   ingress {
-    from_port   = 8888 # Port for access to aaPanel
-    to_port     = 8888
+    from_port   = 8889 # Port for access to aaPanel
+    to_port     = 8889
     protocol    = "tcp"
     cidr_blocks = var.allowed_ips
   }
-  
+
   tags = {
     Name = "Nginx-Security-Group"
   }
