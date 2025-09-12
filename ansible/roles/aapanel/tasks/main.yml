@@ -26,7 +26,7 @@
   ansible.builtin.uri:
     url: https://127.0.0.1/aapanel/login
     status_code: 200
-    validate_certs: no
+    validate_certs: false
     follow_redirects: all
   register: aapanel_result
   until: aapanel_result.status == 200
