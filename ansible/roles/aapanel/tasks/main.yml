@@ -14,13 +14,23 @@
     volumes:
       - aapanel_data:/www/wwwroot
 
-- name: Wait for aaPanel container to exist and be running
+- name: Wait for aaPanel container to be running
   community.docker.docker_container_info:
     name: aapanel
   register: aapanel_info
-  until: aapanel_info.exists and (aapanel_info.containers | default([])) | length > 0 and (aapanel_info.containers | default([]))[0].State.Status == 'running'
+  until: aapanel_info.container is defined and aapanel_info.container.State.Status == 'running'
   retries: 20
   delay: 5
+
+- name: Wait for aaPanel web service to be responsive
+  ansible.builtin.uri:
+    url: http://127.0.0.1:8888
+    status_code: 200
+  register: result
+  until: result.status == 200
+  retries: 30
+  delay: 10
+  delegate_to: localhost
 
 - name: Update _COOKIE_PATH in common.py inside container
   community.docker.docker_container_exec:
