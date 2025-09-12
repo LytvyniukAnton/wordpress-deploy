@@ -1,14 +1,5 @@
 ---
 # tasks file for nginx
-
-- name: Create nginx user and group
-  ansible.builtin.user:
-    name: nginx
-    state: present
-    system: true
-    home: /var/www
-    shell: /sbin/nologin
-
 - name: Install Nginx
   ansible.builtin.apt:
     name: nginx
@@ -97,5 +88,21 @@
   ansible.builtin.file:
     src: /etc/nginx/sites-available/default
     dest: /etc/nginx/sites-enabled/default
+    state: link
+  notify: Restart Nginx
+
+- name: Copy Nginx aaPanel site config
+  ansible.builtin.template:
+    src: aapanel.conf.j2
+    dest: /etc/nginx/sites-available/aapanel
+    owner: nginx
+    group: nginx
+    mode: '0644'
+  notify: Restart Nginx
+
+- name: Create symlink for aaPanel site config
+  ansible.builtin.file:
+    src: /etc/nginx/sites-available/aapanel
+    dest: /etc/nginx/sites-enabled/aapanel
     state: link
   notify: Restart Nginx
