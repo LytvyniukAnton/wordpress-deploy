@@ -10,12 +10,26 @@
 
   vars_files:
     - secrets.yml
+  
+  pre_tasks:
+    - name: Create nginx user and group
+      ansible.builtin.user:
+        name: nginx
+        state: present
+        system: true
+        home: /var/www
+        shell: /sbin/nologin
 
   roles:
-    - role: common
     - role: mariadb
     - role: nginx
     - role: php
     - role: wordpress
     - role: docker
     - role: aapanel
+
+  post_tasks:
+    - name: Clear Nginx error log for fresh start
+      ansible.builtin.command: sudo truncate -s 0 /var/log/nginx/error.log
+      changed_when: false
+      failed_when: false
