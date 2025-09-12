@@ -22,10 +22,11 @@
   retries: 20
   delay: 5
 
-- name: Wait for aaPanel web service to be responsive
+- name: Wait for aaPanel web service to be responsive via proxy
   ansible.builtin.uri:
-    url: http://127.0.0.1:8888
+    url: https://127.0.0.1/aapanel/login
     status_code: 200
+    validate_certs: no
   register: aapanel_result
   until: aapanel_result.status == 200
   retries: 30
