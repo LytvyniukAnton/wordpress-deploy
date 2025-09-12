@@ -30,7 +30,7 @@
   until: aapanel_result.status == 200
   retries: 30
   delay: 10
-  delegate_to: localhost
+  delegate_to: "{{ inventory_hostname }}"
 
 - name: Update _COOKIE_PATH in common.py inside container
   community.docker.docker_container_exec:
