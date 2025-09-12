@@ -12,7 +12,7 @@
     published_ports:
       - "8888:7800"
     volumes:
-      - "{{ ansible_user_dir }}/aapanel_data:/www/wwwroot"
+      - aapanel_data:/www/wwwroot
 
 - name: Wait for aaPanel container to exist and be running
   community.docker.docker_container_info:
