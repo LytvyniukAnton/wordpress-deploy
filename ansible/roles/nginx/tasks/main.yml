@@ -90,19 +90,3 @@
     dest: /etc/nginx/sites-enabled/default
     state: link
   notify: Restart Nginx
-
-- name: Copy Nginx aaPanel SSL site config
-  ansible.builtin.template:
-    src: aapanel-port-ssl.conf.j2
-    dest: /etc/nginx/sites-available/aapanel-port-ssl
-    owner: nginx
-    group: nginx
-    mode: '0644'
-  notify: Restart Nginx
-
-- name: Create symlink for aaPanel SSL site config
-  ansible.builtin.file:
-    src: /etc/nginx/sites-available/aapanel-port-ssl
-    dest: /etc/nginx/sites-enabled/aapanel-port-ssl
-    state: link
-  notify: Restart Nginx
