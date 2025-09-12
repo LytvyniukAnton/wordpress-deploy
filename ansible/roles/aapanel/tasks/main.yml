@@ -13,3 +13,34 @@
       - "8888:7800"
     volumes:
       - "{{ ansible_user_dir }}/aapanel_data:/www/wwwroot"
+
+- name: Wait for aaPanel to be healthy
+  community.docker.docker_container_info:
+    name: aapanel
+  register: aapanel_info
+  until: aapanel_info.containers[0].State.Health.Status == "healthy"
+  retries: 20
+  delay: 5
+
+- name: Update _COOKIE_PATH in common.py inside container
+  community.docker.docker_container_exec:
+    container: aapanel
+    command: sed -i "s|_COOKIE_PATH = '/'|_COOKIE_PATH = '/aapanel/'|" /www/wwwroot/server/panel/class/common.py
+    user: root
+
+- name: Update _panel_path in common.py inside container
+  community.docker.docker_container_exec:
+    container: aapanel
+    command: sed -i "s|_panel_path = '/'|_panel_path = '/aapanel/'|" /www/wwwroot/server/panel/class/common.py
+    user: root
+
+- name: Restart aaPanel inside container
+  community.docker.docker_container_exec:
+    container: aapanel
+    command: /etc/init.d/bt restart
+    user: root
+
+- name: Restart nginx on host
+  ansible.builtin.systemd:
+    name: nginx
+    state: restarted
