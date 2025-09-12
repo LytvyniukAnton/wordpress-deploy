@@ -1,6 +1,16 @@
-# --- WordPress ---
+# ------------------------
+# HTTP → HTTPS редірект
+# ------------------------
 server {
     listen 80;
+    server_name {{ ansible_host | default('_') }};
+    return 301 https://$host$request_uri;
+}
+
+# ------------------------
+# HTTPS server block
+# ------------------------
+server {
     listen 443 ssl;
     server_name {{ ansible_host | default('_') }};
 
@@ -10,6 +20,9 @@ server {
     root {{ wordpress_site_path }};
     index index.php index.html index.htm;
 
+    # ------------------------
+    # WordPress PHP
+    # ------------------------
     location ~ \.php$ {
         include snippets/fastcgi-php.conf;
         fastcgi_pass unix:/var/run/php/php8.1-fpm.sock;
@@ -17,24 +30,31 @@ server {
         include fastcgi_params;
     }
 
-    location / {
-        try_files $uri $uri/ /index.php?$args;
-    }
-}
-
-# --- aaPanel через зворотний проксі ---
-server {
-    listen 8443 ssl;
-    server_name {{ ansible_host | default('_') }};
-
-    ssl_certificate /etc/nginx/ssl/nginx.crt;
-    ssl_certificate_key /etc/nginx/ssl/nginx.key;
-
-    location / {
-        proxy_pass http://127.0.0.1:8888;
+    # ------------------------
+    # aaPanel reverse proxy
+    # ------------------------
+    location /aapanel/ {
+        proxy_pass http://127.0.0.1:8888/;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
+
+        # Переписує редіректи контейнера під /aapanel/
+        proxy_redirect / /aapanel/;
+
+        # Підтримка статичних файлів (CSS, JS, зображення)
+        sub_filter_types *;
+        sub_filter 'href="/' 'href="/aapanel/';
+        sub_filter 'src="/' 'src="/aapanel/';
+        sub_filter_once off;
+        proxy_set_header Accept-Encoding "";
+    }
+
+    # ------------------------
+    # WordPress root
+    # ------------------------
+    location / {
+        try_files $uri $uri/ /index.php?$args;
     }
 }
