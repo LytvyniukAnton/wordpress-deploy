@@ -51,7 +51,7 @@
     validate_certs: false
     follow_redirects: none
   register: aapanel_result
-  until: aapanel_result.status == 302 or aapanel_result.status == 200
+  until: aapanel_result.status == 200 or aapanel_result.status == 302
   retries: 20
   delay: 10
   delegate_to: "{{ inventory_hostname }}"
