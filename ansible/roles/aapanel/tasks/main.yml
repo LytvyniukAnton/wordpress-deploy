@@ -56,12 +56,12 @@
 
 - name: Wait for aaPanel web service to respond via Nginx
   ansible.builtin.uri:
-    url: "https://127.0.0.1:8889/login"
+    url: "https://127.0.0.1:8889/"
     validate_certs: false
     follow_redirects: all
-    status_code: [200, 302]
+    status_code: [302]
   register: aapanel_result
-  until: aapanel_result.status in [200, 302]
+  until: aapanel_result.status == 302
   retries: 20
   delay: 10
   delegate_to: "{{ inventory_hostname }}"

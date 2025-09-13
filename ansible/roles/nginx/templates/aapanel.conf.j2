@@ -14,8 +14,7 @@ server {
         proxy_set_header X-Forwarded-Host $host;
         proxy_set_header X-Forwarded-Port 8889;
 
-        sub_filter 'href="/login"' 'href="https://$host:8889/login"';
-        sub_filter_once on;
-        sub_filter_types text/html;
+        # This is the critical line that fixes the Location header
+        proxy_redirect http://127.0.0.1/ https://$host:$server_port/;
     }
 }
