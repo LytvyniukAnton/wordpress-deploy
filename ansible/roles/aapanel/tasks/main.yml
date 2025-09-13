@@ -6,7 +6,9 @@
 
 - name: DebugCheck Docker volume creation
   ansible.builtin.debug:
-    msg: "Docker volume 'aapanel_data' created. Changed status: {{ aapanel_docker_volume_result.changed }}"
+    msg: >-
+      Docker volume 'aapanel_data' created.
+      Changed status: {{ aapanel_docker_volume_result.changed }}
 
 - name: Run aaPanel container
   community.docker.docker_container:
@@ -22,20 +24,25 @@
 
 - name: DebugCheck container creation
   ansible.builtin.debug:
-    msg: "aaPanel container started. Changed status: {{ aapanel_docker_container_result.changed }}"
+    msg: >-
+      aaPanel container started.
+      Changed status: {{ aapanel_docker_container_result.changed }}
 
 - name: Wait for aaPanel container to be running
   community.docker.docker_container_info:
     name: aapanel
   register: aapanel_info
-  until: aapanel_info.container is defined and aapanel_info.container.State.Status == 'running'
+  until: aapanel_info.container is defined and
+         aapanel_info.container.State.Status == 'running'
   retries: 20
   delay: 5
 
 - name: DebugCheck container status and logs
   ansible.builtin.debug:
     msg: >-
-      Container 'aapanel' is running. Container ID: {{ aapanel_info.container.Id }}. You can check logs with 'docker logs {{ aapanel_info.container.Id }}'
+      Container 'aapanel' is running.
+      Container ID: {{ aapanel_info.container.Id }}.
+      Check logs with 'docker logs {{ aapanel_info.container.Id }}'
 
 - name: Ensure aaPanel data directory exists
   community.docker.docker_container_exec:
@@ -62,4 +69,7 @@
 - name: DebugShow final URI check results
   ansible.builtin.debug:
     msg: >-
-      "URI check completed. Status code: {{ aapanel_result.status }}. URL: {{ aapanel_result.url }}. To access aaPanel, navigate to https://{{ ansible_host }}:8889"
+      URI check completed.
+      Status code: {{ aapanel_result.status }}.
+      URL: {{ aapanel_result.url }}.
+      To access aaPanel, navigate to https://{{ ansible_host }}:8889
