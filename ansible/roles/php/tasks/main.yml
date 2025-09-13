@@ -38,22 +38,22 @@
     state: started
     enabled: true
 
-- name: Debug: Check PHP-FPM service status
+- name: DebugCheck PHP-FPM service status
   ansible.builtin.command: systemctl is-active php8.1-fpm
   register: php_fpm_status
   changed_when: false
   failed_when: php_fpm_status.rc != 0
   
-- name: Debug: Print PHP-FPM status
+- name: DebugPrint PHP-FPM status
   ansible.builtin.debug:
     msg: "PHP-FPM service status: {{ php_fpm_status.stdout }}"
 
-- name: Debug: Check PHP-FPM socket permissions
+- name: DebugCheck PHP-FPM socket permissions
   ansible.builtin.stat:
     path: /var/run/php/php8.1-fpm.sock
   register: php_fpm_socket_stat
 
-- name: Debug: Print socket permissions
+- name: DebugPrint socket permissions
   ansible.builtin.debug:
     msg: "Socket /var/run/php/php8.1-fpm.sock owner: {{ php_fpm_socket_stat.stat.pw_name }}, group: {{ php_fpm_socket_stat.stat.gr_name }}, mode: {{ php_fpm_socket_stat.stat.mode }}"
   when: php_fpm_socket_stat.stat.exists
