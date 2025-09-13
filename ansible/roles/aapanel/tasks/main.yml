@@ -47,9 +47,16 @@
     command: mkdir -p /www/server/panel/data
     user: root
 
-- name: Wait for aaPanel web service to be responsive via Nginx
+- name: Wait for aaPanel port 8889 to be open
+  ansible.builtin.wait_for:
+    host: "127.0.0.1"
+    port: 8889
+    timeout: 300
+  delegate_to: "{{ inventory_hostname }}"
+
+- name: Wait for aaPanel web service to respond via Nginx
   ansible.builtin.uri:
-    url: "https://127.0.0.1:8889/login"
+    url: "https://127.0.0.1:8889/"
     validate_certs: false
     follow_redirects: all
     status_code: [200, 302]
