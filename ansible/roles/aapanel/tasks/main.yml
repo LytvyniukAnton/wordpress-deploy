@@ -23,7 +23,7 @@
     volumes:
       - aapanel_data:/www/wwwroot
   register: aapanel_docker_container_result
-  notify: Reload Nginx
+  notify: Restart Nginx
 
 - name: Wait for aaPanel container to be running
   community.docker.docker_container_info:
