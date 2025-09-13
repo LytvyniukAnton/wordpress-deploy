@@ -60,7 +60,7 @@
   delay: 10
   delegate_to: "{{ inventory_hostname }}"
 
-- name: Debug: Check the final result of the URI check
+- name: Debug - Check the final result of the URI check
   ansible.builtin.debug:
     var: aapanel_result
     verbosity: 2
