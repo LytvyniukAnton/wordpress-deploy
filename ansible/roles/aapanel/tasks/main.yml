@@ -22,7 +22,7 @@
   retries: 20
   delay: 5
 
-- name: Debug: Check container status
+- name: Debug - Check container status
   ansible.builtin.debug:
     msg: "Container 'aapanel' is running. Container ID: {{ aapanel_info.container.Id }}"
 
@@ -40,7 +40,7 @@
   register: aapanel_path_file
   notify: Restart aaPanel
 
-- name: Debug: Check panel_path file content
+- name: Debug - Check panel_path file content
   ansible.builtin.debug:
     msg: "Panel path file created. Status: {{ aapanel_path_file.stdout }}"
 
