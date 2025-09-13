@@ -48,7 +48,7 @@
     container: aapanel
     command: cat /www/server/panel/data/panel_path.pl
     user: root
-  register: panel_path_check
+  register: aapanel_panel_path_check
   delegate_to: "{{ inventory_hostname }}"
 
 - name: Display panel_path.pl content
