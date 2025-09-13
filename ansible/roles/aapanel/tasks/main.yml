@@ -40,6 +40,16 @@
     command: /etc/init.d/bt restart
     user: root
 
+- name: Check common.py content in container
+  community.docker.docker_container_exec:
+    container: aapanel
+    command: cat /www/server/panel/class/common.py
+  register: aapanel_common_py_content
+  delegate_to: "{{ inventory_hostname }}"
+- name: Display common.py content
+  ansible.builtin.debug:
+    var: aapanel_common_py_content.stdout_lines
+
 - name: Restart nginx on host
   ansible.builtin.systemd:
     name: nginx
@@ -47,12 +57,11 @@
 
 - name: Wait for aaPanel web service to be responsive via proxy
   ansible.builtin.uri:
-    url: https://127.0.0.1/aapanel/
-    validate_certs: false
-    follow_redirects: all
-    status_code: [200, 302]
+   url: https://127.0.0.1/aapanel/
+   validate_certs: false
+   follow_redirects: all
   register: aapanel_result
-  until: aapanel_result.status == 200 or aapanel_result.status == 302
+  until: aapanel_result.status == 200
   retries: 20
   delay: 10
   delegate_to: "{{ inventory_hostname }}"
