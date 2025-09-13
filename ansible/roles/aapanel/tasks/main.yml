@@ -17,9 +17,9 @@
     state: started
     restart_policy: always
     published_ports:
-      - "8889:7800"
+      - "127.0.0.1:8888:7800"
     env:
-      PANEL_PORT: "8889"
+      PANEL_PORT: "7800"
       PANEL_DOMAIN: "{{ ansible_host | string }}"
     volumes:
       - aapanel_data:/www/wwwroot
