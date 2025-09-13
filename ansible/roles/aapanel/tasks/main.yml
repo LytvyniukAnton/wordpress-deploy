@@ -15,9 +15,9 @@
     state: started
     restart_policy: always
     published_ports:
-      - "8888:7800"  # контейнерний порт 7800 -> порт хоста 8888
+      - "8888:7800" # Container's internal port 7800 is exposed to host port 8888
     env:
-      PANEL_PORT: "8889"
+      PANEL_PORT: "7800"
       PANEL_DOMAIN: "{{ ansible_host }}"
       PANEL_BASE: "/"
     volumes:
@@ -25,19 +25,11 @@
   register: aapanel_docker_container_result
   notify: Restart Nginx
 
-- name: Wait for aaPanel container to be running
-  community.docker.docker_container_info:
-    name: aapanel
-  register: aapanel_info
-  until: aapanel_info.container is defined and aapanel_info.container.State.Status == 'running'
-  retries: 20
-  delay: 5
-
 - name: Wait for aaPanel container to be healthy
   community.docker.docker_container_info:
     name: aapanel
   register: aapanel_info
-  until: aapanel_info.container.State.Health.Status == 'healthy'
+  until: aapanel_info.container is defined and aapanel_info.container.State.Health.Status == 'healthy'
   retries: 20
   delay: 5
 
@@ -47,22 +39,14 @@
     command: mkdir -p /www/server/panel/data
     user: root
 
-- name: Wait for aaPanel port 8889 to be open
-  ansible.builtin.wait_for:
-    host: "{{ ansible_host }}"
-    port: 8889
-    timeout: 300
-    delay: 10
-  delegate_to: localhost
-
-- name: Wait for aaPanel web service to respond via Nginx
+- name: Wait for aaPanel to be accessible via HTTPS proxy
   ansible.builtin.uri:
-    url: "https://{{ ansible_host }}:8889/"
+    url: "https://{{ ansible_host }}:8889/login"
     validate_certs: false
     follow_redirects: all
-    status_code: [302]
+    status_code: 301, 302
   register: aapanel_result
-  until: aapanel_result.status == 302
+  until: aapanel_result.status == 301 or aapanel_result.status == 302
   retries: 20
   delay: 10
   delegate_to: localhost

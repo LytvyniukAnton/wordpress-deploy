@@ -10,11 +10,10 @@ server {
         proxy_set_header Host $host:$server_port;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Proto https;
         proxy_set_header X-Forwarded-Host $host;
         proxy_set_header X-Forwarded-Port 8889;
-
-        # This is the critical line that fixes the Location header
-        proxy_redirect http://127.0.0.1/ https://$host:$server_port/;
+        
+        proxy_redirect default; 
     }
 }
