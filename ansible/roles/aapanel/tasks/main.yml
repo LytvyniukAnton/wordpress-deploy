@@ -2,6 +2,11 @@
   community.docker.docker_volume:
     name: aapanel_data
     state: present
+  register: docker_volume_result
+  
+- name: DebugCheck Docker volume creation
+  ansible.builtin.debug:
+    msg: "Docker volume 'aapanel_data' created. Changed status: {{ docker_volume_result.changed }}"
 
 - name: Run aaPanel container
   community.docker.docker_container:
@@ -13,6 +18,11 @@
       - "8888:7800"
     volumes:
       - aapanel_data:/www/wwwroot
+  register: docker_container_result
+
+- name: DebugCheck container creation
+  ansible.builtin.debug:
+    msg: "aaPanel container started. Changed status: {{ docker_container_result.changed }}"
 
 - name: Wait for aaPanel container to be running
   community.docker.docker_container_info:
@@ -22,9 +32,9 @@
   retries: 20
   delay: 5
 
-- name: Debug - Check container status
+- name: DebugCheck container status and logs
   ansible.builtin.debug:
-    msg: "Container 'aapanel' is running. Container ID: {{ aapanel_info.container.Id }}"
+    msg: "Container 'aapanel' is running. Container ID: {{ aapanel_info.container.Id }}. You can check logs with 'docker logs {{ aapanel_info.container.Id }}'"
 
 - name: Ensure aaPanel data directory exists
   community.docker.docker_container_exec:
@@ -32,26 +42,14 @@
     command: mkdir -p /www/server/panel/data
     user: root
 
-- name: Set aaPanel panel_path to /aapanel inside container
-  community.docker.docker_container_exec:
-    container: aapanel
-    command: echo "/aapanel" > /www/server/panel/data/panel_path.pl
-    user: root
-  register: aapanel_path_file
-  notify: Restart aaPanel
-
-- name: Debug - Check panel_path file content
-  ansible.builtin.debug:
-    msg: "Panel path file created. Status: {{ aapanel_path_file.stdout }}"
-
 - name: Restart nginx on host
   ansible.builtin.systemd:
     name: nginx
     state: restarted
 
-- name: Wait for aaPanel web service to be responsive via proxy
+- name: Wait for aaPanel web service to be responsive on new port
   ansible.builtin.uri:
-    url: https://127.0.0.1/aapanel/
+    url: https://127.0.0.1:8889/
     validate_certs: false
     follow_redirects: all
   register: aapanel_result
@@ -60,7 +58,6 @@
   delay: 10
   delegate_to: "{{ inventory_hostname }}"
 
-- name: Debug - Check the final result of the URI check
+- name: DebugShow final URI check results
   ansible.builtin.debug:
-    var: aapanel_result
-    verbosity: 2
+    msg: "URI check completed. Status code: {{ aapanel_result.status }}. URL: {{ aapanel_result.url }}. To access aaPanel, navigate to https://{{ ansible_host }}:8889"
