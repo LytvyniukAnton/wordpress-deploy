@@ -41,12 +41,12 @@
 - name: DebugCheck PHP-FPM service status
   ansible.builtin.systemd:
     name: php8.1-fpm
-    state: started
-  check_mode: true
+    state: started # This ensures the service is running, which is what you're checking
+  register: php_fpm_status
 
 - name: DebugPrint PHP-FPM status
   ansible.builtin.debug:
-    msg: "PHP-FPM service status: {{ php_fpm_status.stdout }}"
+    msg: "PHP-FPM service is running. Changed: {{ php_fpm_status.changed }}"
 
 - name: DebugCheck PHP-FPM socket permissions
   ansible.builtin.stat:
