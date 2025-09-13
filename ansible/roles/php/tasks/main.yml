@@ -14,15 +14,6 @@
     state: present
     update_cache: true
 
-- name: Configure PHP-FPM to use nginx user
-  ansible.builtin.template:
-    src: www.conf.j2
-    dest: /etc/php/8.1/fpm/pool.d/www.conf
-    owner: root
-    group: root
-    mode: '0644'
-  notify: Restart PHP-FPM
-
 - name: Set correct permissions for PHP-FPM socket directory
   ansible.builtin.file:
     path: /var/run/php
@@ -32,8 +23,37 @@
     state: directory
   become: true
 
+- name: Configure PHP-FPM to use nginx user
+  ansible.builtin.template:
+    src: www.conf.j2
+    dest: /etc/php/8.1/fpm/pool.d/www.conf
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Restart PHP-FPM
+
 - name: Start and enable PHP-FPM service
   ansible.builtin.service:
     name: php8.1-fpm
     state: started
     enabled: true
+
+- name: Debug: Check PHP-FPM service status
+  ansible.builtin.command: systemctl is-active php8.1-fpm
+  register: php_fpm_status
+  changed_when: false
+  failed_when: php_fpm_status.rc != 0
+  
+- name: Debug: Print PHP-FPM status
+  ansible.builtin.debug:
+    msg: "PHP-FPM service status: {{ php_fpm_status.stdout }}"
+
+- name: Debug: Check PHP-FPM socket permissions
+  ansible.builtin.stat:
+    path: /var/run/php/php8.1-fpm.sock
+  register: php_fpm_socket_stat
+
+- name: Debug: Print socket permissions
+  ansible.builtin.debug:
+    msg: "Socket /var/run/php/php8.1-fpm.sock owner: {{ php_fpm_socket_stat.stat.pw_name }}, group: {{ php_fpm_socket_stat.stat.gr_name }}, mode: {{ php_fpm_socket_stat.stat.mode }}"
+  when: php_fpm_socket_stat.stat.exists
