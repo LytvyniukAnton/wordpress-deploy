@@ -31,29 +31,19 @@ server {
     }
 
     # ------------------------
-    # aaPanel reverse proxy (розміщений перед WordPress)
+    # aaPanel reverse proxy
     # ------------------------
-    location /aapanel/ {
-        proxy_pass http://127.0.0.1:8888/;
+    location ^~ /aapanel/ {
+        rewrite ^/aapanel(.*)$ $1 break;
+        
+        proxy_pass http://127.0.0.1:8888;
+
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
 
-        # Цей рядок коректно перенаправляє запити з aaPanel
-        # на правильний шлях /aapanel/
         proxy_redirect http://127.0.0.1:8888/ https://$host/aapanel/;
-        
-        # Ці рядки замінюють посилання, щоб вони правильно працювали з проксі
-        sub_filter 'href="/' 'href="/aapanel/';
-        sub_filter 'src="/' 'src="/aapanel/';
-        sub_filter_once off;
-        
-        # Вимикаємо стиснення, щоб sub_filter працював правильно
-        proxy_set_header Accept-Encoding "";
-        
-        # Запобігаємо перенаправленню на WordPress
-        try_files $uri $uri/;
     }
 
     # ------------------------
