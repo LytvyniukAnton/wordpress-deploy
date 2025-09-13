@@ -13,6 +13,6 @@ server {
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_set_header X-Forwarded-Host $host;
         proxy_set_header X-Forwarded-Port 8889;
-        proxy_redirect http://127.0.0.1:7800/ /;
+        proxy_redirect http://127.0.0.1:7800/ https://$host:8889/; 
     }
 }
