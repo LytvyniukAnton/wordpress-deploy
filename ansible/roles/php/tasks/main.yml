@@ -39,11 +39,11 @@
     enabled: true
 
 - name: DebugCheck PHP-FPM service status
-  ansible.builtin.command: systemctl is-active php8.1-fpm
-  register: php_fpm_status
-  changed_when: false
-  failed_when: php_fpm_status.rc != 0
-  
+  ansible.builtin.systemd:
+    name: php8.1-fpm
+    state: started
+  check_mode: true
+
 - name: DebugPrint PHP-FPM status
   ansible.builtin.debug:
     msg: "PHP-FPM service status: {{ php_fpm_status.stdout }}"
@@ -55,5 +55,8 @@
 
 - name: DebugPrint socket permissions
   ansible.builtin.debug:
-    msg: "Socket /var/run/php/php8.1-fpm.sock owner: {{ php_fpm_socket_stat.stat.pw_name }}, group: {{ php_fpm_socket_stat.stat.gr_name }}, mode: {{ php_fpm_socket_stat.stat.mode }}"
+    msg: >-
+      Socket /var/run/php/php8.1-fpm.sock owner: {{ php_fpm_socket_stat.stat.pw_name }},
+      group: {{ php_fpm_socket_stat.stat.gr_name }},
+      mode: {{ php_fpm_socket_stat.stat.mode }}
   when: php_fpm_socket_stat.stat.exists
