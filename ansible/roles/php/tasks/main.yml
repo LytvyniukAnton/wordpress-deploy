@@ -1,5 +1,6 @@
 ---
 # tasks file for php
+
 - name: Install PHP 8.1 and required extensions
   ansible.builtin.apt:
     name:
@@ -22,12 +23,6 @@
     mode: '0644'
   notify: Restart PHP-FPM
 
-- name: Start and enable PHP-FPM service
-  ansible.builtin.service:
-    name: php8.1-fpm
-    state: started
-    enabled: true
-
 - name: Set correct permissions for PHP-FPM socket directory
   ansible.builtin.file:
     path: /var/run/php
@@ -37,12 +32,8 @@
     state: directory
   become: true
 
-- name: Set correct permissions for PHP-FPM socket
-  ansible.builtin.file:
-    path: /var/run/php/php8.1-fpm.sock
-    owner: nginx
-    group: nginx
-    mode: '0660'
-    state: touch
-  become: true
-  notify: Restart PHP-FPM
+- name: Start and enable PHP-FPM service
+  ansible.builtin.service:
+    name: php8.1-fpm
+    state: started
+    enabled: true
