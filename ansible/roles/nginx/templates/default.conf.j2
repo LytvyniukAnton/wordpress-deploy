@@ -1,15 +1,9 @@
-# ------------------------
-# HTTP → HTTPS редірект
-# ------------------------
 server {
     listen 80;
     server_name {{ ansible_host | default('_') }};
     return 301 https://$host$request_uri;
 }
 
-# ------------------------
-# HTTPS server block
-# ------------------------
 server {
     listen 443 ssl;
     server_name {{ ansible_host | default('_') }};
@@ -30,24 +24,22 @@ server {
         include fastcgi_params;
     }
 
-    # ------------------------
-    # aaPanel reverse proxy
-    # ------------------------
     location ^~ /aapanel/ {
-        rewrite ^/aapanel(.*)$ $1 break;
-        
-        proxy_pass http://127.0.0.1:8888;
-
+        proxy_pass http://127.0.0.1:8888/;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
 
-        proxy_redirect http://127.0.0.1:8888/ https://$host/aapanel/;
+        sub_filter 'href="/' 'href="/aapanel/';
+        sub_filter 'src="/' 'src="/aapanel/';
+        sub_filter_once off;
+
+        proxy_set_header Accept-Encoding "";
     }
 
     # ------------------------
-    # WordPress root (розміщений після aaPanel)
+    # WordPress root
     # ------------------------
     location / {
         try_files $uri $uri/ /index.php?$args;
