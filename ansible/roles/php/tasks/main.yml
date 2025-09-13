@@ -36,7 +36,7 @@
     mode: '0755'
     state: directory
   become: true
-  
+
 - name: Set correct permissions for PHP-FPM socket
   ansible.builtin.file:
     path: /var/run/php/php8.1-fpm.sock
