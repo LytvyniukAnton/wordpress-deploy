@@ -22,16 +22,10 @@
   retries: 20
   delay: 5
 
-- name: Update _COOKIE_PATH in common.py inside container
+- name: Set aaPanel panel_path to /aapanel inside container
   community.docker.docker_container_exec:
     container: aapanel
-    command: sed -i "s|_COOKIE_PATH = '/'|_COOKIE_PATH = '/aapanel/'|" /www/server/panel/class/common.py
-    user: root
-
-- name: Update _panel_path in common.py inside container
-  community.docker.docker_container_exec:
-    container: aapanel
-    command: sed -i "s|_panel_path = '/'|_panel_path = '/aapanel/'|" /www/server/panel/class/common.py
+    command: echo "/aapanel" > /www/server/panel/data/panel_path.pl
     user: root
 
 - name: Restart aaPanel inside container
@@ -40,15 +34,16 @@
     command: /etc/init.d/bt restart
     user: root
 
-- name: Check common.py content in container
+- name: Check panel_path.pl content inside container
   community.docker.docker_container_exec:
     container: aapanel
-    command: cat /www/server/panel/class/common.py
-  register: aapanel_common_py_content
+    command: cat /www/server/panel/data/panel_path.pl
+  register: panel_path_check
   delegate_to: "{{ inventory_hostname }}"
-- name: Display common.py content
+
+- name: Display panel_path.pl content
   ansible.builtin.debug:
-    var: aapanel_common_py_content.stdout_lines
+    var: panel_path_check.stdout_lines
 
 - name: Restart nginx on host
   ansible.builtin.systemd:
@@ -57,9 +52,9 @@
 
 - name: Wait for aaPanel web service to be responsive via proxy
   ansible.builtin.uri:
-   url: https://127.0.0.1/aapanel/
-   validate_certs: false
-   follow_redirects: all
+    url: https://127.0.0.1/aapanel/
+    validate_certs: false
+    follow_redirects: all
   register: aapanel_result
   until: aapanel_result.status == 200
   retries: 20
