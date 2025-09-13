@@ -22,38 +22,19 @@
   retries: 20
   delay: 5
 
-- name: Check current aaPanel panel_path
+- name: Ensure aaPanel data directory exists
   community.docker.docker_container_exec:
     container: aapanel
-    command: bash -c "cat /www/server/panel/data/panel_path.pl 2>/dev/null || echo ''"
+    command: mkdir -p /www/server/panel/data
     user: root
-  register: aapanel_current_panel_path
 
 - name: Set aaPanel panel_path to /aapanel inside container
   community.docker.docker_container_exec:
     container: aapanel
     command: echo "/aapanel" > /www/server/panel/data/panel_path.pl
     user: root
-  when: aapanel_current_panel_path.stdout.strip() != "/aapanel"
-  changed_when: true
-
-- name: Restart aaPanel inside container
-  community.docker.docker_container_exec:
-    container: aapanel
-    command: /etc/init.d/bt restart
-    user: root
-  when: aapanel_current_panel_path.stdout.strip() != "/aapanel"
-
-- name: Check panel_path.pl content inside container
-  community.docker.docker_container_exec:
-    container: aapanel
-    command: cat /www/server/panel/data/panel_path.pl
-    user: root
-  register: aapanel_panel_path_check
-
-- name: Display panel_path.pl content
-  ansible.builtin.debug:
-    var: aapanel_panel_path_check.stdout_lines
+  register: aapanel_path_file
+  notify: Restart aaPanel
 
 - name: Restart nginx on host
   ansible.builtin.systemd:

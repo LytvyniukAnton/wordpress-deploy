@@ -1,0 +1,5 @@
+- name: Restart aaPanel
+  community.docker.docker_container_exec:
+    container: aapanel
+    command: /etc/init.d/bt restart
+    user: root
