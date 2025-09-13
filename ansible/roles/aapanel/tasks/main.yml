@@ -23,7 +23,7 @@
     volumes:
       - aapanel_data:/www/wwwroot
   register: aapanel_docker_container_result
-  notify: Restart Nginx
+  notify: Reload Nginx
 
 - name: Wait for aaPanel container to be running
   community.docker.docker_container_info:
@@ -49,14 +49,15 @@
 
 - name: Wait for aaPanel port 8889 to be open
   ansible.builtin.wait_for:
-    host: "127.0.0.1"
+    host: "{{ ansible_host }}"
     port: 8889
     timeout: 300
-  delegate_to: "{{ inventory_hostname }}"
+    delay: 10
+  delegate_to: localhost
 
 - name: Wait for aaPanel web service to respond via Nginx
   ansible.builtin.uri:
-    url: "https://127.0.0.1:8889/"
+    url: "https://{{ ansible_host }}:8889/"
     validate_certs: false
     follow_redirects: all
     status_code: [302]
@@ -64,7 +65,7 @@
   until: aapanel_result.status == 302
   retries: 20
   delay: 10
-  delegate_to: "{{ inventory_hostname }}"
+  delegate_to: localhost
 
 - name: Debug final access info
   ansible.builtin.debug:

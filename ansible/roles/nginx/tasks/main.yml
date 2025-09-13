@@ -11,7 +11,7 @@
     path: /etc/nginx/nginx.conf
     regexp: '^user\s+www-data;'
     replace: 'user nginx;'
-  notify: Restart Nginx
+  notify: Reload Nginx
 
 # --- SSL ---
 - name: Ensure SSL directory exists
@@ -32,7 +32,7 @@
     path: /etc/nginx/ssl/nginx.key
     size: 2048
   when: not nginx_ssl_key.stat.exists
-  notify: Restart Nginx
+  notify: Reload Nginx
 
 - name: Check if CSR exists
   ansible.builtin.stat:
@@ -45,7 +45,7 @@
     privatekey_path: /etc/nginx/ssl/nginx.key
     common_name: "{{ ansible_host }}"
   when: not nginx_ssl_csr.stat.exists
-  notify: Restart Nginx
+  notify: Reload Nginx
 
 - name: Check if self-signed certificate exists
   ansible.builtin.stat:
@@ -60,7 +60,7 @@
     provider: selfsigned
     selfsigned_not_after: "+365d"
   when: not nginx_ssl_cert.stat.exists
-  notify: Restart Nginx
+  notify: Reload Nginx
 
 - name: Remove temporary CSR
   ansible.builtin.file:
@@ -73,7 +73,7 @@
   ansible.builtin.file:
     path: /etc/nginx/sites-enabled/default
     state: absent
-  notify: Restart Nginx
+  notify: Reload Nginx
 
 - name: Copy Nginx site config
   ansible.builtin.template:
@@ -82,14 +82,14 @@
     owner: nginx
     group: nginx
     mode: '0644'
-  notify: Restart Nginx
+  notify: Reload Nginx
 
 - name: Create symlink for Nginx site config
   ansible.builtin.file:
     src: /etc/nginx/sites-available/default
     dest: /etc/nginx/sites-enabled/default
     state: link
-  notify: Restart Nginx
+  notify: Reload Nginx
 
 - name: Copy Nginx site config for aaPanel
   ansible.builtin.template:
@@ -98,11 +98,11 @@
     owner: nginx
     group: nginx
     mode: '0644'
-  notify: Restart Nginx
+  notify: Reload Nginx
 
 - name: Create symlink for aaPanel Nginx site config
   ansible.builtin.file:
     src: /etc/nginx/sites-available/aapanel.conf
     dest: /etc/nginx/sites-enabled/aapanel.conf
     state: link
-  notify: Restart Nginx
+  notify: Reload Nginx
