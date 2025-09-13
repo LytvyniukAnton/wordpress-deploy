@@ -22,22 +22,28 @@ site online in minutes, with a robust testing and deployment pipeline.
 
 ```text
 .github/workflows/
-├─ deploy.yml         # GitHub Actions workflow for production deployment
-├─ destroy.yml        # Workflow for destroying infrastructure
-└─ test.yml           # Workflow for running tests on pull requests
+├─ deploy.yml         # Deploy workflow
+├─ destroy.yml        # Destroy infrastructure
+└─ test.yml           # PR checks
 
 ansible/
+├─ wordpress_deploy.yml
 ├─ roles/
+│  ├─ aapanel/tasks/main.yml
+│  ├─ common/tasks/main.yml
+│  ├─ docker/tasks/main.yml
 │  ├─ mariadb/tasks/main.yml
 │  ├─ nginx/
 │  │  ├─ handlers/main.yml
 │  │  ├─ tasks/main.yml
 │  │  └─ templates/default.conf.j2
-│  ├─ php/tasks/main.yml
+│  ├─ php/
+│  │  ├─ handlers/main.yml
+│  │  ├─ tasks/main.yml
+│  │  └─ templates/www.conf.j2
 │  └─ wordpress/
 │     ├─ tasks/main.yml
 │     └─ templates/wp-config.php.j2
-└─ wordpress_deploy.yml   # Main Ansible playbook
 
 terraform/
 ├─ ec2.tf
@@ -45,7 +51,8 @@ terraform/
 ├─ outputs.tf
 ├─ provider.tf
 ├─ security-group.tf
-└─ variables.tf
+├─ variables.tf
+└─ terraform.tfvars
 
 .gitignore
 README.md
@@ -114,6 +121,7 @@ README.md
    - Installs and configures Nginx with SSL
    - Installs PHP with necessary extensions
    - Downloads and configures WordPress
+   - Sets up Docker and aaPanel
 
 ---
 
@@ -182,6 +190,8 @@ risk of errors.
 1. Merge the Pull Request. The `deploy.yml` workflow will automatically run.
 1. After successful deployment, grab the public IP from the Terraform outputs
    and open it in your browser — you should see the WordPress setup page.
+   `Access WordPress: https://<EC2_PUBLIC_IP>/`
+1. `Access aaPanel: https://<EC2_PUBLIC_IP>/aapanel/`
 
 > [!TIP]
 > You can find the public IP in the logs of the `terraform` job in your
