@@ -27,21 +27,21 @@
     container: aapanel
     command: cat /www/server/panel/data/panel_path.pl || echo ""
     user: root
-  register: current_panel_path
+  register: aapanel_current_panel_path
 
 - name: Update aaPanel panel_path if needed
   community.docker.docker_container_exec:
     container: aapanel
     command: bash -c 'echo "/aapanel" > /www/server/panel/data/panel_path.pl'
     user: root
-  when: current_panel_path.stdout.strip() != "/aapanel"
+  when: aapanel_current_panel_path.stdout.strip() != "/aapanel"
 
 - name: Restart aaPanel inside container if path changed
   community.docker.docker_container_exec:
     container: aapanel
     command: /etc/init.d/bt restart
     user: root
-  when: current_panel_path.stdout.strip() != "/aapanel"
+  when: aapanel_current_panel_path.stdout.strip() != "/aapanel"
 
 - name: Check panel_path.pl content inside container
   community.docker.docker_container_exec:
@@ -53,7 +53,7 @@
 
 - name: Display panel_path.pl content
   ansible.builtin.debug:
-    var: panel_path_check.stdout_lines
+    var: aapanel_panel_path_check.stdout_lines
 
 - name: Restart nginx on host
   ansible.builtin.systemd:
