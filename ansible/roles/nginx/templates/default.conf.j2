@@ -11,6 +11,10 @@ server {
     ssl_certificate /etc/nginx/ssl/nginx.crt;
     ssl_certificate_key /etc/nginx/ssl/nginx.key;
 
+    location /login {
+        return 301 https://$host:8889$request_uri;
+    }
+
     root {{ wordpress_site_path }};
     index index.php index.html index.htm;
 
