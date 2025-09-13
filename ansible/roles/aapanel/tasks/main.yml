@@ -19,8 +19,8 @@
     published_ports:
       - "8889:7800"
     env:
-      PANEL_PORT: 8889
-      PANEL_DOMAIN: "https://{{ ansible_host }}"
+      PANEL_PORT:"8889"
+      PANEL_DOMAIN:"https://{{ ansible_host }}"
     volumes:
       - aapanel_data:/www/wwwroot
   register: aapanel_docker_container_result
