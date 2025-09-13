@@ -6,9 +6,7 @@
 
 - name: DebugCheck Docker volume creation
   ansible.builtin.debug:
-    msg: >-
-      Docker volume 'aapanel_data' created.
-      Changed status: {{ aapanel_docker_volume_result.changed }}
+    msg: "Docker volume 'aapanel_data' created. Changed status: {{ aapanel_docker_volume_result.changed }}"
 
 - name: Run aaPanel container
   community.docker.docker_container:
@@ -17,36 +15,31 @@
     state: started
     restart_policy: always
     published_ports:
-      - "8888:7800"
+      - "8888:7800"  # контейнерний порт 7800 -> порт хоста 8888
     env:
       PANEL_PORT: "8889"
-      PANEL_DOMAIN: "{{ ansible_host | string }}"
+      PANEL_DOMAIN: "{{ ansible_host }}"
       PANEL_BASE: "/"
     volumes:
       - aapanel_data:/www/wwwroot
   register: aapanel_docker_container_result
-
-- name: DebugCheck container creation
-  ansible.builtin.debug:
-    msg: >-
-      aaPanel container started.
-      Changed status: {{ aapanel_docker_container_result.changed }}
+  notify: Restart Nginx
 
 - name: Wait for aaPanel container to be running
   community.docker.docker_container_info:
     name: aapanel
   register: aapanel_info
-  until: aapanel_info.container is defined and
-         aapanel_info.container.State.Status == 'running'
+  until: aapanel_info.container is defined and aapanel_info.container.State.Status == 'running'
   retries: 20
   delay: 5
 
-- name: DebugCheck container status and logs
-  ansible.builtin.debug:
-    msg: >-
-      Container 'aapanel' is running.
-      Container ID: {{ aapanel_info.container.Id }}.
-      Check logs with 'docker logs {{ aapanel_info.container.Id }}'
+- name: Wait for aaPanel container to be healthy
+  community.docker.docker_container_info:
+    name: aapanel
+  register: aapanel_info
+  until: aapanel_info.container.State.Health.Status == 'healthy'
+  retries: 20
+  delay: 5
 
 - name: Ensure aaPanel data directory exists
   community.docker.docker_container_exec:
@@ -54,26 +47,16 @@
     command: mkdir -p /www/server/panel/data
     user: root
 
-- name: Restart nginx on host
-  ansible.builtin.systemd:
-    name: nginx
-    state: restarted
-
-- name: Wait for aaPanel web service to be responsive on new port
+- name: Wait for aaPanel web service to be responsive via Nginx
   ansible.builtin.uri:
-    url: https://127.0.0.1:8889/
+    url: "https://{{ ansible_host }}:8889/"
     validate_certs: false
     follow_redirects: all
   register: aapanel_result
-  until: aapanel_result.status == 200 or aapanel_result.status == 302
+  until: aapanel_result.status == 200
   retries: 20
   delay: 10
-  delegate_to: "{{ inventory_hostname }}"
 
-- name: DebugShow final URI check results
+- name: Debug final access info
   ansible.builtin.debug:
-    msg: >-
-      URI check completed.
-      Status code: {{ aapanel_result.status }}.
-      URL: {{ aapanel_result.url }}.
-      To access aaPanel, navigate to https://{{ ansible_host }}:8889
+    msg: "aaPanel доступний за https://{{ ansible_host }}:8889"
