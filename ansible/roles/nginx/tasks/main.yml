@@ -90,3 +90,19 @@
     dest: /etc/nginx/sites-enabled/default
     state: link
   notify: Restart Nginx
+
+- name: Copy Nginx site config for aaPanel
+  ansible.builtin.template:
+    src: aapanel.conf.j2
+    dest: /etc/nginx/sites-available/aapanel.conf
+    owner: nginx
+    group: nginx
+    mode: '0644'
+  notify: Restart Nginx
+
+- name: Create symlink for aaPanel Nginx site config
+  ansible.builtin.file:
+    src: /etc/nginx/sites-available/aapanel.conf
+    dest: /etc/nginx/sites-enabled/aapanel.conf
+    state: link
+  notify: Restart Nginx
