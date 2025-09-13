@@ -34,6 +34,7 @@
     command: echo "/aapanel" > /www/server/panel/data/panel_path.pl
     user: root
   register: aapanel_path_file
+  notify: Restart aaPanel
 
 - name: Restart aaPanel inside container if path was changed
   community.docker.docker_container_exec:
