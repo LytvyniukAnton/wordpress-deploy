@@ -49,13 +49,14 @@
 
 - name: Wait for aaPanel web service to be responsive via Nginx
   ansible.builtin.uri:
-    url: "https://{{ ansible_host }}:8889/"
+    url: "https://127.0.0.1:8889/"
     validate_certs: false
     follow_redirects: all
   register: aapanel_result
   until: aapanel_result.status == 200 or aapanel_result.status == 302
   retries: 20
   delay: 10
+  delegate_to: "{{ inventory_hostname }}"
 
 - name: Debug final access info
   ansible.builtin.debug:
