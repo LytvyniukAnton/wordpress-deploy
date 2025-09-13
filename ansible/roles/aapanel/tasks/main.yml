@@ -22,6 +22,10 @@
   retries: 20
   delay: 5
 
+- name: Debug: Check container status
+  ansible.builtin.debug:
+    msg: "Container 'aapanel' is running. Container ID: {{ aapanel_info.container.Id }}"
+
 - name: Ensure aaPanel data directory exists
   community.docker.docker_container_exec:
     container: aapanel
@@ -35,6 +39,10 @@
     user: root
   register: aapanel_path_file
   notify: Restart aaPanel
+
+- name: Debug: Check panel_path file content
+  ansible.builtin.debug:
+    msg: "Panel path file created. Status: {{ aapanel_path_file.stdout }}"
 
 - name: Restart nginx on host
   ansible.builtin.systemd:
@@ -51,3 +59,8 @@
   retries: 20
   delay: 10
   delegate_to: "{{ inventory_hostname }}"
+
+- name: Debug: Check the final result of the URI check
+  ansible.builtin.debug:
+    var: aapanel_result
+    verbosity: 2
