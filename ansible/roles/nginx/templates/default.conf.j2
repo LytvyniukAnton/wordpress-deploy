@@ -47,6 +47,8 @@ server {
         sub_filter 'src="/' 'src="/aapanel/';
         sub_filter_once off;
         proxy_set_header Accept-Encoding "";
+
+        try_files $uri $uri/;
     }
 
     # ------------------------
