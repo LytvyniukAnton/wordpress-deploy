@@ -48,7 +48,7 @@ jobs:
 
       - name: Export Security Group ID
         id: get_sg
-        run: echo "sg_id=$(terraform output -raw nginx_sg_id)" >> $GITHUB_ENV
+        run: echo "sg_id=$(terraform output -raw nginx_security_group_id)" >> $GITHUB_ENV
         working-directory: terraform
 
   ansible:
