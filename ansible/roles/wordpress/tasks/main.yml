@@ -1,4 +1,7 @@
-# Create WordPress directory
+---
+# tasks file for wordpress
+
+# --- Create WordPress directory ---
 - name: Ensure WordPress directory exists
   ansible.builtin.file:
     path: "{{ wordpress_site_path }}"
@@ -7,7 +10,7 @@
     group: nginx
     mode: '0755'
 
-# Download and extract WordPress
+# --- Download and extract WordPress ---
 - name: Download and extract WordPress
   ansible.builtin.unarchive:
     src: https://wordpress.org/latest.tar.gz
@@ -17,7 +20,7 @@
     owner: nginx
     group: nginx
 
-# Deploy wp-config.php
+# --- Deploy wp-config.php ---
 - name: Deploy wp-config.php
   ansible.builtin.template:
     src: wp-config.php.j2
@@ -26,7 +29,7 @@
     group: nginx
     mode: '0644'
 
-# Set correct permissions recursively for WordPress
+# --- Set ownership and permissions recursively ---
 - name: Set ownership and permissions recursively for WordPress
   ansible.builtin.file:
     path: "{{ wordpress_site_path }}"
@@ -37,7 +40,7 @@
     mode: '0755'
   notify: Restart Nginx
 
-# Optional: ensure uploads writable by nginx
+# --- Ensure uploads writable by nginx ---
 - name: Ensure wp-content/uploads is writable
   ansible.builtin.file:
     path: "{{ wordpress_site_path }}/wp-content/uploads"
