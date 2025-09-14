@@ -7,6 +7,7 @@ on:
     paths:
       - 'terraform/**'
       - 'ansible/**'
+      - '.github/workflows/**І'
       - 'README.md'
 
 jobs:
@@ -69,31 +70,31 @@ jobs:
             -refresh=false
         working-directory: terraform
 
-    ansible_lint_and_dryrun:
-      name: "Ansible Lint & Dry-run"
-      runs-on: ubuntu-latest
-      steps:
-        - uses: actions/checkout@v4
+  ansible_lint_and_dryrun:
+    name: "Ansible Lint & Dry-run"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
 
-        - run: |
-            python3 -m pip install --upgrade pip
-            pip3 install ansible ansible-lint
+      - run: |
+          python3 -m pip install --upgrade pip
+          pip3 install ansible ansible-lint
 
-        - name: Lint Playbook
-          run: ansible-lint ansible/wordpress_deploy.yml
+      - name: Lint Playbook
+        run: ansible-lint ansible/wordpress_deploy.yml
 
-        - name: Dry-run Playbook
-          run: |
-            mkdir -p ansible
-            echo "webservers:" > ansible/inventory.yml
-            echo "  hosts:" >> ansible/inventory.yml
-            echo "    localhost:" >> ansible/inventory.yml
-            echo "      ansible_connection: local" >> ansible/inventory.yml
+      - name: Dry-run Playbook
+        run: |
+          mkdir -p ansible
+          echo "webservers:" > ansible/inventory.yml
+          echo "  hosts:" >> ansible/inventory.yml
+          echo "    localhost:" >> ansible/inventory.yml
+          echo "      ansible_connection: local" >> ansible/inventory.yml
 
-            ansible-playbook ansible/wordpress_deploy.yml \
-              -i ansible/inventory.yml \
-              --check \
-              --diff \
-              --vault-password-file <(echo "${{ secrets.ANSIBLE_VAULT_PASS }}")
-          env:
-            ANSIBLE_HOST_KEY_CHECKING: "False"
+          ansible-playbook ansible/wordpress_deploy.yml \
+            -i ansible/inventory.yml \
+            --check \
+            --diff \
+            --vault-password-file <(echo "${{ secrets.ANSIBLE_VAULT_PASS }}")
+        env:
+          ANSIBLE_HOST_KEY_CHECKING: "False"
