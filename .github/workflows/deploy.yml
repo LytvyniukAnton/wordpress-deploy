@@ -32,33 +32,33 @@ jobs:
         run: terraform init
         working-directory: terraform
 
-      - name: Import existing Security Group if exists
-        run: |
-          SG_NAME="nginx-sg"
-          REGION="${AWS_REGION}"
+      # - name: Import existing Security Group if exists
+      #   run: |
+      #     SG_NAME="nginx-sg"
+      #     REGION="${AWS_REGION}"
 
-          VPC_ID=$(aws ec2 describe-vpcs \
-          --filters "Name=isDefault,Values=true" \
-          --region $REGION \
-          --query "Vpcs[0].VpcId" --output text)
+      #     VPC_ID=$(aws ec2 describe-vpcs \
+      #     --filters "Name=isDefault,Values=true" \
+      #     --region $REGION \
+      #     --query "Vpcs[0].VpcId" --output text)
 
-          EXISTING_SG_ID=$(aws ec2 describe-security-groups \
-          --filters "Name=group-name,Values=$SG_NAME" "Name=vpc-id,Values=$VPC_ID" \
-          --region $REGION \
-          --query "SecurityGroups[0].GroupId" --output text)
+      #     EXISTING_SG_ID=$(aws ec2 describe-security-groups \
+      #     --filters "Name=group-name,Values=$SG_NAME" "Name=vpc-id,Values=$VPC_ID" \
+      #     --region $REGION \
+      #     --query "SecurityGroups[0].GroupId" --output text)
 
-          if [ "$EXISTING_SG_ID" != "None" ] && [ "$EXISTING_SG_ID" != "null" ]; then
-            echo "Found existing SG: $EXISTING_SG_ID, importing..."
-            terraform import aws_security_group.nginx_security_group $EXISTING_SG_ID
-          else
-            echo "No existing SG found, Terraform will create a new one"
-          fi
-        working-directory: terraform
-        env:
-          ALLOWED_IPS: ${{ secrets.ALLOWED_IPS }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: ${{ secrets.AWS_REGION }}
+      #     if [ "$EXISTING_SG_ID" != "None" ] && [ "$EXISTING_SG_ID" != "null" ]; then
+      #       echo "Found existing SG: $EXISTING_SG_ID, importing..."
+      #       terraform import aws_security_group.nginx_security_group $EXISTING_SG_ID
+      #     else
+      #       echo "No existing SG found, Terraform will create a new one"
+      #     fi
+      #   working-directory: terraform
+      #   env:
+      #     ALLOWED_IPS: ${{ secrets.ALLOWED_IPS }}
+      #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     AWS_REGION: ${{ secrets.AWS_REGION }}
 
       - name: Terraform Apply
         id: apply
