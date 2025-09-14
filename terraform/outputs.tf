@@ -4,8 +4,7 @@ output "nginx_public_ip" {
 }
 
 output "nginx_security_group_id" {
-  description = "The ID of the security group associated with the Nginx server."
-  value       = aws_security_group.nginx_security_group.id # Assuming 'aws_security_group.nginx_sg' is your Nginx security group
+  value = var.use_existing_sg ? var.existing_sg_id : aws_security_group.nginx_security_group[0].id
 }
 
 output "aws_instance_public_dns" {
