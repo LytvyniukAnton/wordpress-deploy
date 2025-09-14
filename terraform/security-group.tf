@@ -1,9 +1,9 @@
-data "aws_security_groups" "existing_nginx" {
+data "aws_security_group" "nginx" {
+  count = 1
   filter {
     name   = "group-name"
     values = ["nginx-sg"]
   }
-
   filter {
     name   = "vpc-id"
     values = [data.aws_vpc.default.id]
