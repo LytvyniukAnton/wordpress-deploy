@@ -1,4 +1,5 @@
-- name: Create WordPress directory
+# Create WordPress directory
+- name: Ensure WordPress directory exists
   ansible.builtin.file:
     path: "{{ wordpress_site_path }}"
     state: directory
@@ -6,7 +7,8 @@
     group: nginx
     mode: '0755'
 
-- name: Download and unarchive WordPress
+# Download and extract WordPress
+- name: Download and extract WordPress
   ansible.builtin.unarchive:
     src: https://wordpress.org/latest.tar.gz
     dest: "{{ wordpress_site_path }}"
@@ -15,7 +17,8 @@
     owner: nginx
     group: nginx
 
-- name: Configure wp-config.php
+# Deploy wp-config.php
+- name: Deploy wp-config.php
   ansible.builtin.template:
     src: wp-config.php.j2
     dest: "{{ wordpress_site_path }}/wp-config.php"
@@ -23,30 +26,23 @@
     group: nginx
     mode: '0644'
 
-- name: Find all directories in the WordPress installation
-  ansible.builtin.find:
-    paths: "{{ wordpress_site_path }}"
-    file_type: directory
-  register: wordpress_dirs
-
-- name: Set correct permissions for WordPress directories
+# Set correct permissions recursively for WordPress
+- name: Set ownership and permissions recursively for WordPress
   ansible.builtin.file:
-    path: "{{ item.path }}"
+    path: "{{ wordpress_site_path }}"
+    state: directory
+    owner: nginx
+    group: nginx
+    recurse: yes
+    mode: '0755'
+  notify: Restart Nginx
+
+# Optional: ensure uploads writable by nginx
+- name: Ensure wp-content/uploads is writable
+  ansible.builtin.file:
+    path: "{{ wordpress_site_path }}/wp-content/uploads"
+    state: directory
     owner: nginx
     group: nginx
     mode: '0755'
-  loop: "{{ wordpress_dirs.files }}"
-
-- name: Find all files in the WordPress installation
-  ansible.builtin.find:
-    paths: "{{ wordpress_site_path }}"
-    file_type: file
-  register: wordpress_files
-
-- name: Set correct permissions for WordPress files
-  ansible.builtin.file:
-    path: "{{ item.path }}"
-    owner: nginx
-    group: nginx
-    mode: '0644'
-  loop: "{{ wordpress_files.files }}"
+    recurse: yes
