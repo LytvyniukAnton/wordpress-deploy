@@ -13,4 +13,3 @@
     - { path: '/etc/nginx/ssl/nginx.key', owner: 'root', group: 'root', mode: '0600' }
     - { path: '/etc/nginx/ssl/nginx.crt', owner: 'root', group: 'root', mode: '0644' }
   notify: Restart Nginx
-  
