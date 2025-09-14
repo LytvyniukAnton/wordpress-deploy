@@ -33,6 +33,14 @@ resource "aws_security_group" "nginx_security_group" {
   }
 
   ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = local.allowed_ips_list
+    description = "Allow HTTPS traffic"
+  }
+
+  ingress {
     from_port   = 8888
     to_port     = 8888
     protocol    = "tcp"
