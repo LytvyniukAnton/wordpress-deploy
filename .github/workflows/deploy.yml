@@ -81,6 +81,23 @@ jobs:
           EC2_IP=$(cat ec2_ip.txt)
           echo "EC2_IP=$EC2_IP" >> $GITHUB_ENV
 
+      # --- New: Dynamic IP GitHub runner ---
+      - name: Get IP-address GitHub Actions runner
+        id: ip
+        uses: haythem/public-ip@v1.3
+
+      - name: Додати IP до Security Group
+        run: |
+          aws ec2 authorize-security-group-ingress \
+            --group-id ${{ secrets.AWS_SECURITY_GROUP_ID }} \
+            --protocol tcp \
+            --port 22 \
+            --cidr ${{ steps.ip.outputs.ipv4 }}/32
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+
       - name: Wait for SSH to be ready
         run: |
           for i in $(seq 1 10); do
@@ -123,3 +140,16 @@ jobs:
           -e "db_password=${{ secrets.DB_PASSWORD }}"
         env:
           ANSIBLE_HOST_KEY_CHECKING: "False"
+
+      - name: Delete IP from Security Group
+        if: always()
+        run: |
+          aws ec2 revoke-security-group-ingress \
+            --group-id ${{ secrets.AWS_SECURITY_GROUP_ID }} \
+            --protocol tcp \
+            --port 22 \
+            --cidr ${{ steps.ip.outputs.ipv4 }}/32
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
