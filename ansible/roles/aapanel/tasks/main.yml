@@ -8,26 +8,20 @@
   ansible.builtin.debug:
     msg: "Docker volume 'aapanel_data' created. Changed status: {{ aapanel_docker_volume_result.changed }}"
 
-- name: Create Docker network for aapanel
-  community.docker.docker_network:
-    name: aapanel_net
-    state: present
-
 - name: Run aaPanel container
   community.docker.docker_container:
     name: aapanel
     image: aapanel/aapanel
     state: started
     restart_policy: always
-    networks:
-      - name: aapanel_net
+    published_ports:
+      - "8888:7800"
     env:
       PANEL_PORT: "7800"
       PANEL_DOMAIN: "{{ ansible_host }}"
       PANEL_BASE: "/"
     volumes:
       - aapanel_data:/www/wwwroot
-
   register: aapanel_docker_container_result
   notify: Restart Nginx
 
@@ -45,7 +39,7 @@
     command: mkdir -p /www/server/panel/data
     user: root
 
-- name: Wait for aaPanel to be accessible locally (container + Nginx proxy)
+- name: Wait for aaPanel to be accessible via Nginx proxy
   ansible.builtin.uri:
     url: "https://127.0.0.1:8889/login"
     validate_certs: false
@@ -53,26 +47,13 @@
     status_code: 200, 301, 302
     connect_timeout: 5
   register: aapanel_local_result
-  until: aapanel_local_result.status in [200, 301, 302]
+  until: aapanel_local_result is succeeded and
+         aapanel_local_result.status is defined and
+         aapanel_local_result.status in [200, 301, 302]
   retries: 20
   delay: 10
   delegate_to: "{{ inventory_hostname }}"
 
-- name: Wait for aaPanel to be accessible externally (GitHub runner → EC2)
-  ansible.builtin.uri:
-    url: "https://{{ ansible_host }}:8889/login"
-    validate_certs: false
-    follow_redirects: all
-    status_code: 200, 301, 302
-    connect_timeout: 5
-  register: aapanel_external_result
-  until: aapanel_external_result.status in [200, 301, 302]
-  retries: 20
-  delay: 10
-  delegate_to: localhost
-
 - name: Debug final access info
   ansible.builtin.debug:
-    msg: |
-      aaPanel доступний локально (через Nginx) на 127.0.0.1:8889
-      aaPanel доступний зовні за https://{{ ansible_host }}:8889
+    msg: "aaPanel доступний за https://{{ ansible_host }}:8889"
