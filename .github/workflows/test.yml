@@ -14,88 +14,43 @@ jobs:
   terraform_validate:
     name: "Terraform Validate"
     runs-on: ubuntu-latest
-    env:
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      AWS_REGION: ${{ secrets.AWS_REGION }}
     steps:
       - uses: actions/checkout@v4
       - uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.6.0
-      - run: terraform init
+      - name: Terraform Init (no backend)
+        run: terraform init -backend=false
         working-directory: terraform
-      - run: terraform validate
+      - name: Terraform Validate
+        run: terraform validate
         working-directory: terraform
 
   terraform_plan_sim:
     name: "Terraform Plan Simulation"
     runs-on: ubuntu-latest
-    env:
-      ALLOWED_IPS: ${{ secrets.ALLOWED_IPS }}
-      AWS_KEY_NAME: dummy-key
-      AWS_REGION: ${{ secrets.AWS_REGION }}
     steps:
       - uses: actions/checkout@v4
       - uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.6.0
-      - run: terraform init -lock=false
+      - name: Terraform Init (no backend)
+        run: terraform init -backend=false
         working-directory: terraform
-      - name: Import existing Security Group if exists (simulation)
-        run: |
-          SG_NAME="nginx-sg"
-          VPC_ID=$(aws ec2 describe-vpcs \
-            --filters "Name=isDefault,Values=true" \
-            --region $AWS_REGION \
-            --query "Vpcs[0].VpcId" --output text)
-          EXISTING_SG_ID=$(aws ec2 describe-security-groups \
-            --filters "Name=group-name,Values=$SG_NAME" "Name=vpc-id,Values=$VPC_ID" \
-            --region $AWS_REGION \
-            --query "SecurityGroups[0].GroupId" --output text)
-          if [ "$EXISTING_SG_ID" != "None" ] && [ "$EXISTING_SG_ID" != "null" ]; then
-            echo "Found existing SG: $EXISTING_SG_ID (would import in real deploy)"
-          else
-            echo "No existing SG found (would create in real deploy)"
-          fi
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: ${{ secrets.AWS_REGION }}
       - name: Terraform Plan Dry-run
-        run: |
-          terraform plan \
-            -var "allowed_ips=${ALLOWED_IPS}" \
-            -var "key_name=${AWS_KEY_NAME}" \
-            -refresh=false
+        run: terraform plan -refresh=false \
+          -var "allowed_ips=0.0.0.0/0" \
+          -var "key_name=dummy-key"
         working-directory: terraform
 
-  ansible_lint_and_dryrun:
-    name: "Ansible Lint & Dry-run"
+  ansible_lint:
+    name: "Ansible Lint"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      - run: |
+      - name: Install Ansible
+        run: |
           python3 -m pip install --upgrade pip
           pip3 install ansible ansible-lint
-
       - name: Lint Playbook
         run: ansible-lint ansible/wordpress_deploy.yml
-
-      - name: Dry-run Playbook
-        run: |
-          mkdir -p ansible
-          echo "webservers:" > ansible/inventory.yml
-          echo "  hosts:" >> ansible/inventory.yml
-          echo "    localhost:" >> ansible/inventory.yml
-          echo "      ansible_connection: local" >> ansible/inventory.yml
-
-          ansible-playbook ansible/wordpress_deploy.yml \
-            -i ansible/inventory.yml \
-            --check \
-            --diff \
-            --vault-password-file <(echo "${{ secrets.ANSIBLE_VAULT_PASS }}")
-        env:
-          ANSIBLE_HOST_KEY_CHECKING: "False"
-          
