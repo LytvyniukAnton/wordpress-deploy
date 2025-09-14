@@ -35,10 +35,13 @@ jobs:
       - name: Import existing Security Group if exists
         run: |
           SG_NAME="nginx-sg"
-          VPC_ID=$(terraform output -raw vpc_id) # або data.aws_vpc.default.id
+          VPC_ID=$(aws ec2 describe-vpcs \
+            --filters "Name=isDefault,Values=true" \
+            --query "Vpcs[0].VpcId" --output text)
+
           EXISTING_SG_ID=$(aws ec2 describe-security-groups \
-          --filters "Name=group-name,Values=$SG_NAME" "Name=vpc-id,Values=$VPC_ID" \
-          --query "SecurityGroups[0].GroupId" --output text)
+            --filters "Name=group-name,Values=$SG_NAME" "Name=vpc-id,Values=$VPC_ID" \
+            --query "SecurityGroups[0].GroupId" --output text)
 
           if [ "$EXISTING_SG_ID" != "None" ]; then
             echo "Found existing SG: $EXISTING_SG_ID, importing..."
