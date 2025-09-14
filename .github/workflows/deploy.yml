@@ -12,11 +12,12 @@ on:
 
 jobs:
   terraform:
-    name: "Creating/Configuring EC2 with Terraform"
+    name: "Terraform: Create/Update EC2 & SG"
     runs-on: ubuntu-latest
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
       ALLOWED_IPS: ${{ secrets.ALLOWED_IPS }}
       AWS_KEY_NAME: ${{ secrets.AWS_KEY_NAME }}
     steps:
@@ -32,35 +33,7 @@ jobs:
         run: terraform init -lock=false
         working-directory: terraform
 
-      - name: Import existing Security Group if exists
-        run: |
-          SG_NAME="nginx-sg"
-          REGION="${AWS_REGION}"
-
-          VPC_ID=$(aws ec2 describe-vpcs \
-          --filters "Name=isDefault,Values=true" \
-          --region $REGION \
-          --query "Vpcs[0].VpcId" --output text)
-
-          EXISTING_SG_ID=$(aws ec2 describe-security-groups \
-          --filters "Name=group-name,Values=$SG_NAME" "Name=vpc-id,Values=$VPC_ID" \
-          --region $REGION \
-          --query "SecurityGroups[0].GroupId" --output text)
-
-          if [ "$EXISTING_SG_ID" != "None" ] && [ "$EXISTING_SG_ID" != "null" ]; then
-            echo "Found existing SG: $EXISTING_SG_ID, importing..."
-            terraform import aws_security_group.nginx_security_group $EXISTING_SG_ID
-          else
-            echo "No existing SG found, Terraform will create a new one"
-          fi
-        working-directory: terraform
-        env:
-          ALLOWED_IPS: ${{ secrets.ALLOWED_IPS }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: ${{ secrets.AWS_REGION }}
-
-      - name: Terraform Apply
+      - name: Terraform Apply (create/update resources)
         id: apply
         run: |
           terraform apply -auto-approve -lock=false \
@@ -68,18 +41,18 @@ jobs:
             -var "key_name=${{ env.AWS_KEY_NAME }}"
         working-directory: terraform
 
-      - name: Get EC2 Public IP
+      - name: Export EC2 Public IP
         id: get_ip
         run: echo "public_ip=$(terraform output -raw nginx_public_ip)" >> $GITHUB_ENV
         working-directory: terraform
 
-      - name: Get Security Group ID
-        id: sg
+      - name: Export Security Group ID
+        id: get_sg
         run: echo "sg_id=$(terraform output -raw nginx_sg_id)" >> $GITHUB_ENV
         working-directory: terraform
 
   ansible:
-    name: "Configuring EC2 with Ansible"
+    name: "Ansible: Configure EC2"
     runs-on: ubuntu-latest
     needs: terraform
     steps:
@@ -102,7 +75,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
 
-      - name: Setup SSH
+      - name: Setup SSH Agent
         uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
