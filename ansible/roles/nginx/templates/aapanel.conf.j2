@@ -1,6 +1,6 @@
 # --- HTTP redirect to HTTPS ---
 server {
-    listen 8888;
+    listen 80;
     server_name _;
 
     return 301 https://$host:8889$request_uri;
