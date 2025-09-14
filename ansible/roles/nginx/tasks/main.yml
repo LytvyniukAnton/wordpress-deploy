@@ -5,6 +5,14 @@
     state: present
     update_cache: true
 
+- name: Ensure Nginx user exists
+  ansible.builtin.user:
+    name: nginx
+    state: present
+    system: true
+    home: /var/www
+    shell: /sbin/nologin
+
 - name: Set Nginx to run as nginx user
   ansible.builtin.replace:
     path: /etc/nginx/nginx.conf
@@ -21,70 +29,44 @@
     group: root
     mode: '0755'
 
-- name: Remove old SSL files to force regeneration
-  ansible.builtin.file:
-    path: "{{ item }}"
-    state: absent
-  loop:
-    - /etc/nginx/ssl/nginx.crt
-    - /etc/nginx/ssl/nginx.key
-    - /etc/nginx/ssl/nginx.csr
-  when: not ansible_check_mode
-
-- name: Check if SSL private key exists
-  ansible.builtin.stat:
-    path: /etc/nginx/ssl/nginx.key
-  register: nginx_ssl_key
-
-- name: Generate a private key for SSL
+- name: Generate SSL private key if missing
   community.crypto.openssl_privatekey:
     path: /etc/nginx/ssl/nginx.key
     size: 2048
-  when: not nginx_ssl_key.stat.exists
-  notify: Restart Nginx
+  when: not ansible.builtin.stat(path='/etc/nginx/ssl/nginx.key').stat.exists
+  notify: Set SSL permissions
 
-- name: Check if CSR exists
-  ansible.builtin.stat:
-    path: /etc/nginx/ssl/nginx.csr
-  register: nginx_ssl_csr
-
-- name: Create a certificate signing request (CSR)
-  community.crypto.openssl_csr:
-    path: /etc/nginx/ssl/nginx.csr
-    privatekey_path: /etc/nginx/ssl/nginx.key
-    common_name: "{{ ansible_host }}"
-  when: not nginx_ssl_csr.stat.exists
-  notify: Restart Nginx
-
-- name: Check if self-signed certificate exists
-  ansible.builtin.stat:
-    path: /etc/nginx/ssl/nginx.crt
-  register: nginx_ssl_cert
-
-- name: Create a self-signed certificate
+- name: Generate self-signed certificate if missing
   community.crypto.x509_certificate:
     path: /etc/nginx/ssl/nginx.crt
-    csr_path: /etc/nginx/ssl/nginx.csr
     privatekey_path: /etc/nginx/ssl/nginx.key
     provider: selfsigned
     selfsigned_not_after: "+365d"
-  when: not nginx_ssl_cert.stat.exists
-  notify: Restart Nginx
+  when: not ansible.builtin.stat(path='/etc/nginx/ssl/nginx.crt').stat.exists
+  notify: Set SSL permissions
 
-- name: Remove temporary CSR
+- name: Set SSL permissions
   ansible.builtin.file:
-    path: /etc/nginx/ssl/nginx.csr
-    state: absent
-  when: nginx_ssl_csr.stat.exists
+    path: "{{ item.path }}"
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
+    mode: "{{ item.mode }}"
+  loop:
+    - { path: '/etc/nginx/ssl/nginx.key', owner: 'root', group: 'root', mode: '0600' }
+    - { path: '/etc/nginx/ssl/nginx.crt', owner: 'root', group: 'root', mode: '0644' }
+  notify: Restart Nginx
 
 # --- Site config ---
-- name: Remove default Nginx config
+- name: Remove old site configs
   ansible.builtin.file:
-    path: /etc/nginx/sites-enabled/default
+    path: "/etc/nginx/sites-enabled/{{ item }}"
     state: absent
+  loop:
+    - default
+    - aapanel.conf
   notify: Restart Nginx
 
-- name: Copy Nginx site config
+- name: Deploy WordPress Nginx config
   ansible.builtin.template:
     src: default.conf.j2
     dest: /etc/nginx/sites-available/default
@@ -93,14 +75,14 @@
     mode: '0644'
   notify: Restart Nginx
 
-- name: Create symlink for Nginx site config
+- name: Enable WordPress site
   ansible.builtin.file:
     src: /etc/nginx/sites-available/default
     dest: /etc/nginx/sites-enabled/default
     state: link
   notify: Restart Nginx
 
-- name: Copy Nginx site config for aaPanel
+- name: Deploy aaPanel Nginx config
   ansible.builtin.template:
     src: aapanel.conf.j2
     dest: /etc/nginx/sites-available/aapanel.conf
@@ -109,9 +91,22 @@
     mode: '0644'
   notify: Restart Nginx
 
-- name: Create symlink for aaPanel Nginx site config
+- name: Enable aaPanel site
   ansible.builtin.file:
     src: /etc/nginx/sites-available/aapanel.conf
     dest: /etc/nginx/sites-enabled/aapanel.conf
     state: link
   notify: Restart Nginx
+
+# --- Handlers ---
+- name: Restart Nginx
+  ansible.builtin.systemd:
+    name: nginx
+    state: restarted
+    enabled: true
+
+- name: Test Nginx config
+  ansible.builtin.command: nginx -t
+  register: nginx_test
+  failed_when: nginx_test.rc != 0
+  changed_when: false
