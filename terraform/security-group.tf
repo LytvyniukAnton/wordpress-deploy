@@ -11,7 +11,7 @@ data "aws_security_group" "nginx" {
 }
 
 resource "aws_security_group" "nginx_security_group" {
-  count       = var.use_existing_sg ? 0 : 1
+  count       = local.existing_sg_id == null ? 1 : 0
   name        = "nginx-sg"
   description = "Security group for Nginx web server"
   vpc_id      = data.aws_vpc.default.id
