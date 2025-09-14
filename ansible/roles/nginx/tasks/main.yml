@@ -1,5 +1,4 @@
 ---
-# tasks file for nginx
 - name: Install Nginx
   ansible.builtin.apt:
     name: nginx
@@ -13,7 +12,7 @@
     replace: 'user nginx;'
   notify: Restart Nginx
 
-# --- SSL ---
+# --- SSL Configuration ---
 - name: Ensure SSL directory exists
   ansible.builtin.file:
     path: /etc/nginx/ssl
@@ -21,6 +20,16 @@
     owner: root
     group: root
     mode: '0755'
+
+- name: Remove old SSL files to force regeneration
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - /etc/nginx/ssl/nginx.crt
+    - /etc/nginx/ssl/nginx.key
+    - /etc/nginx/ssl/nginx.csr
+  when: not ansible_check_mode
 
 - name: Check if SSL private key exists
   ansible.builtin.stat:
