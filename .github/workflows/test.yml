@@ -7,7 +7,7 @@ on:
     paths:
       - 'terraform/**'
       - 'ansible/**'
-      - '.github/workflows/**І'
+      - '.github/workflows/**'
       - 'README.md'
 
 jobs:
@@ -98,3 +98,4 @@ jobs:
             --vault-password-file <(echo "${{ secrets.ANSIBLE_VAULT_PASS }}")
         env:
           ANSIBLE_HOST_KEY_CHECKING: "False"
+          
