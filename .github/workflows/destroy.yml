@@ -22,11 +22,11 @@ jobs:
           terraform_version: 1.6.0
 
       - name: Terraform Init
-        run: terraform init
+        run: terraform init -lock=false
         working-directory: terraform
 
       - name: Terraform Destroy
-        run: terraform destroy -auto-approve \
+        run: terraform destroy -auto-approve -lock=false \
           -var "allowed_ips=${ALLOWED_IPS}" \
           -var "key_name=${AWS_KEY_NAME}"
         working-directory: terraform
