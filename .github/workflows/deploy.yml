@@ -34,9 +34,10 @@ jobs:
 
       - name: Terraform Apply
         id: apply
-        run: terraform apply -auto-approve \
-          -var "allowed_ips=${ALLOWED_IPS}" \
-          -var "key_name=${AWS_KEY_NAME}"
+        run: |
+          terraform apply -auto-approve \
+            -var "allowed_ips=${ALLOWED_IPS}" \
+            -var "key_name=${{ env.AWS_KEY_NAME }}"
         working-directory: terraform
 
       - name: Get EC2 Public IP
@@ -71,7 +72,7 @@ jobs:
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: us-east-1
+          AWS_REGION: ${{ secrets.AWS_REGION }}
 
       - name: Setup SSH
         uses: webfactory/ssh-agent@v0.9.0
@@ -109,4 +110,4 @@ jobs:
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: us-east-1
+          AWS_REGION: ${{ secrets.AWS_REGION }}
