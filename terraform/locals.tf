@@ -1,5 +1,5 @@
 locals {
-  existing_sg_id = try(data.aws_security_group.nginx.id, null)
+  existing_sg_id = try(data.aws_security_group.nginx[0].id, null)
 }
 
 locals {
