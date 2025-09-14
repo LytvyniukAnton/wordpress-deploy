@@ -36,7 +36,7 @@
     state: directory
     owner: nginx
     group: nginx
-    recurse: yes
+    recurse: true
     mode: '0755'
   notify: Restart Nginx
 
@@ -48,4 +48,4 @@
     owner: nginx
     group: nginx
     mode: '0755'
-    recurse: yes
+    recurse: true
