@@ -1,3 +1,8 @@
+- name: Clear Nginx error log for fresh start
+  ansible.builtin.command: sudo truncate -s 0 /var/log/nginx/error.log
+  changed_when: false
+  failed_when: false
+
 - name: Create Docker volume for aaPanel
   community.docker.docker_volume:
     name: aapanel_data
@@ -45,7 +50,7 @@
     validate_certs: false
     follow_redirects: all
     status_code: 200, 301, 302
-    connect_timeout: 5
+    timeout: 5
   register: aapanel_local_result
   until: aapanel_local_result is succeeded and
          aapanel_local_result.status is defined and
