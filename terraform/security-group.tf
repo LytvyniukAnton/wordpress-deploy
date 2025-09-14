@@ -19,15 +19,6 @@ resource "aws_security_group" "nginx_security_group" {
     description = "Allow HTTPS traffic"
   }
 
-  ingress {
-    from_port = 22
-    to_port   = 22
-    protocol  = "tcp"
-    #cidr_blocks = var.allowed_ips
-    cidr_blocks = ["185.199.108.0/22", "140.82.112.0/20"]
-    description = "Allow SSH access"
-  }
-
   egress {
     from_port   = 0
     to_port     = 0
