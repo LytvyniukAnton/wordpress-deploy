@@ -32,16 +32,13 @@
     mode: '0644'
   notify: Restart PHP-FPM
 
-- name: Start and enable PHP-FPM service
-  ansible.builtin.service:
-    name: php8.1-fpm
-    state: started
-    enabled: true
+# There is NO separate "Start and enable" task here.
+# The handler will handle the first start as well as subsequent restarts.
 
 - name: DebugCheck PHP-FPM service status
   ansible.builtin.systemd:
     name: php8.1-fpm
-    state: started # This ensures the service is running, which is what you're checking
+    state: started
   register: php_fpm_status
 
 - name: DebugPrint PHP-FPM status
@@ -60,3 +57,4 @@
       group: {{ php_fpm_socket_stat.stat.gr_name }},
       mode: {{ php_fpm_socket_stat.stat.mode }}
   when: php_fpm_socket_stat.stat.exists
+  
