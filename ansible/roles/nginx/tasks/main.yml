@@ -29,12 +29,22 @@
     group: root
     mode: '0755'
 
+- name: Check if SSL private key exists
+  ansible.builtin.stat:
+    path: /etc/nginx/ssl/nginx.key
+  register: nginx_ssl_key
+
 - name: Generate SSL private key if missing
   community.crypto.openssl_privatekey:
     path: /etc/nginx/ssl/nginx.key
     size: 2048
-  when: not ansible.builtin.stat(path='/etc/nginx/ssl/nginx.key').stat.exists
+  when: not nginx_ssl_key.stat.exists
   notify: Set SSL permissions
+
+- name: Check if SSL certificate exists
+  ansible.builtin.stat:
+    path: /etc/nginx/ssl/nginx.crt
+  register: nginx_ssl_cert
 
 - name: Generate self-signed certificate if missing
   community.crypto.x509_certificate:
@@ -42,7 +52,7 @@
     privatekey_path: /etc/nginx/ssl/nginx.key
     provider: selfsigned
     selfsigned_not_after: "+365d"
-  when: not ansible.builtin.stat(path='/etc/nginx/ssl/nginx.crt').stat.exists
+  when: not nginx_ssl_cert.stat.exists
   notify: Set SSL permissions
 
 - name: Set SSL permissions
@@ -97,13 +107,6 @@
     dest: /etc/nginx/sites-enabled/aapanel.conf
     state: link
   notify: Restart Nginx
-
-# --- Handlers ---
-- name: Restart Nginx
-  ansible.builtin.systemd:
-    name: nginx
-    state: restarted
-    enabled: true
 
 - name: Test Nginx config
   ansible.builtin.command: nginx -t
