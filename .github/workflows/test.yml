@@ -27,7 +27,7 @@ jobs:
           terraform_version: 1.6.0
 
       - name: Terraform Init
-        run: terraform init
+        run: terraform init -lock=false
         working-directory: terraform
 
       - name: Terraform Validate
