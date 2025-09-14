@@ -12,6 +12,7 @@ jobs:
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       ALLOWED_IPS: ${{ secrets.ALLOWED_IPS }}
       AWS_KEY_NAME: ${{ secrets.AWS_KEY_NAME }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -25,8 +26,25 @@ jobs:
         run: terraform init -lock=false
         working-directory: terraform
 
+      - name: Remove imported Security Group from state
+        run: |
+          SG_NAME="nginx-sg"
+          EXISTING_SG_ID=$(aws ec2 describe-security-groups \
+            --filters "Name=group-name,Values=$SG_NAME" \
+            --region $AWS_REGION \
+            --query "SecurityGroups[0].GroupId" --output text)
+
+          if [ "$EXISTING_SG_ID" != "None" ] && [ "$EXISTING_SG_ID" != "null" ]; then
+            terraform state rm aws_security_group.nginx_security_group || echo "SG not in state, skipping..."
+          fi
+        working-directory: terraform
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+
       - name: Terraform Destroy
-        run: | 
+        run: |
           terraform destroy -auto-approve -lock=false \
             -var "allowed_ips=${ALLOWED_IPS}" \
             -var "key_name=${AWS_KEY_NAME}"
