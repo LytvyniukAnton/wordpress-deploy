@@ -26,7 +26,8 @@ jobs:
         working-directory: terraform
 
       - name: Terraform Destroy
-        run: terraform destroy -auto-approve -lock=false \
-          -var "allowed_ips=${ALLOWED_IPS}" \
-          -var "key_name=${AWS_KEY_NAME}"
+        run: | 
+          terraform destroy -auto-approve -lock=false \
+            -var "allowed_ips=${ALLOWED_IPS}" \
+            -var "key_name=${AWS_KEY_NAME}"
         working-directory: terraform
