@@ -57,4 +57,3 @@
       group: {{ php_fpm_socket_stat.stat.gr_name }},
       mode: {{ php_fpm_socket_stat.stat.mode }}
   when: php_fpm_socket_stat.stat.exists
-  

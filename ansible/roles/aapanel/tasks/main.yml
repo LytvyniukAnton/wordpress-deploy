@@ -42,6 +42,10 @@
   retries: 20
   delay: 5
 
+- name: Pause to allow Nginx to restart
+  ansible.builtin.pause:
+    seconds: 15
+
 - name: Ensure aaPanel data directory exists
   community.docker.docker_container_exec:
     container: aapanel
@@ -56,9 +60,7 @@
     status_code: 200,301,302
     timeout: 5
   register: aapanel_local_result
-  until: aapanel_local_result is succeeded and
-         aapanel_local_result.status is defined and
-         aapanel_local_result.status in [200,301,302]
+  until: aapanel_local_result is succeeded
   retries: 20
   delay: 10
   delegate_to: "{{ inventory_hostname }}"
