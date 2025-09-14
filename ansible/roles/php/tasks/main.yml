@@ -14,13 +14,13 @@
     state: present
     update_cache: true
 
-- name: Set correct permissions for PHP-FPM socket directory
+- name: Ensure PHP runtime directory exists
   ansible.builtin.file:
     path: /var/run/php
+    state: directory
     owner: nginx
     group: nginx
     mode: '0755'
-    state: directory
   become: true
 
 - name: Configure PHP-FPM to use nginx user
@@ -30,20 +30,27 @@
     owner: root
     group: root
     mode: '0644'
-  notify: Restart PHP-FPM
+  notify:
+    - Restart PHP-FPM
 
-# There is NO separate "Start and enable" task here.
-# The handler will handle the first start as well as subsequent restarts.
-
-- name: DebugCheck PHP-FPM service status
-  ansible.builtin.systemd:
+- name: Start and enable PHP-FPM service
+  ansible.builtin.service:
     name: php8.1-fpm
     state: started
-  register: php_fpm_status
+    enabled: true
 
-- name: DebugPrint PHP-FPM status
-  ansible.builtin.debug:
-    msg: "PHP-FPM service is running. Changed: {{ php_fpm_status.changed }}"
+- name: Wait a few seconds for socket to appear
+  ansible.builtin.wait_for:
+    path: /var/run/php/php8.1-fpm.sock
+    state: present
+    timeout: 10
+
+- name: Ensure PHP-FPM socket has correct ownership
+  ansible.builtin.file:
+    path: /var/run/php/php8.1-fpm.sock
+    owner: nginx
+    group: nginx
+    mode: '0660'
 
 - name: DebugCheck PHP-FPM socket permissions
   ansible.builtin.stat:
@@ -52,8 +59,5 @@
 
 - name: DebugPrint socket permissions
   ansible.builtin.debug:
-    msg: >-
-      Socket /var/run/php/php8.1-fpm.sock owner: {{ php_fpm_socket_stat.stat.pw_name }},
-      group: {{ php_fpm_socket_stat.stat.gr_name }},
-      mode: {{ php_fpm_socket_stat.stat.mode }}
+    msg: "Socket owner: {{ php_fpm_socket_stat.stat.pw_name }}, group: {{ php_fpm_socket_stat.stat.gr_name }}, mode: {{ php_fpm_socket_stat.stat.mode }}"
   when: php_fpm_socket_stat.stat.exists
