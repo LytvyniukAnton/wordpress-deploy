@@ -7,7 +7,6 @@ on:
     paths:
       - 'terraform/**'
       - 'ansible/**'
-      - '.github/workflows/**'
       - 'README.md'
 
 jobs:
