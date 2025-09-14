@@ -23,3 +23,15 @@ variable "key_name" {
 data "aws_vpc" "default" {
   default = true
 }
+
+variable "use_existing_sg" {
+  description = "Use existing Nginx Security Group if true"
+  type        = bool
+  default     = false
+}
+
+variable "existing_sg_id" {
+  description = "ID of existing Nginx Security Group (if any)"
+  type        = string
+  default     = ""
+}
