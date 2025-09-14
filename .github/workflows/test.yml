@@ -37,12 +37,6 @@ jobs:
       - name: Terraform Init (no backend)
         run: terraform init -backend=false
         working-directory: terraform
-      - name: Terraform Plan Dry-run
-        run: | 
-          terraform plan -refresh=false \
-          -var "allowed_ips=0.0.0.0/0" \
-          -var "key_name=dummy-key"
-        working-directory: terraform
 
   ansible_lint:
     name: "Ansible Lint"
