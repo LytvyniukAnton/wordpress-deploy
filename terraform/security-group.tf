@@ -43,6 +43,13 @@ resource "aws_security_group" "nginx_security_group" {
     cidr_blocks = var.allowed_ips
   }
 
+  ingress {
+    from_port   = 8888
+    to_port     = 8888
+    protocol    = "tcp"
+    cidr_blocks = var.allowed_ips
+  }
+
   tags = {
     Name = "Nginx-Security-Group"
   }
