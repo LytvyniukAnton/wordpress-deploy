@@ -4,7 +4,7 @@
     state: present
   register: aapanel_docker_volume_result
 
-- name: DebugCheck Docker volume creation
+- name: Debug check Docker volume creation
   ansible.builtin.debug:
     msg: "Docker volume 'aapanel_data' created. Changed status: {{ aapanel_docker_volume_result.changed }}"
 
@@ -14,8 +14,6 @@
     image: aapanel/aapanel
     state: started
     restart_policy: always
-    published_ports:
-      - "8888:7800" # Container's internal port 7800 is exposed to host port 8888
     env:
       PANEL_PORT: "7800"
       PANEL_DOMAIN: "{{ ansible_host }}"
@@ -39,17 +37,17 @@
     command: mkdir -p /www/server/panel/data
     user: root
 
-# - name: Wait for aaPanel to be accessible via HTTPS proxy
-#   ansible.builtin.uri:
-#     url: "https://{{ ansible_host }}:8889/login"
-#     validate_certs: false
-#     follow_redirects: all
-#     status_code: 301, 302
-#   register: aapanel_result
-#   until: aapanel_result.status == 301 or aapanel_result.status == 302
-#   retries: 20
-#   delay: 10
-#   delegate_to: localhost
+- name: Wait for aaPanel to be accessible via HTTPS proxy
+  ansible.builtin.uri:
+    url: "https://{{ ansible_host }}:8889/login"
+    validate_certs: false
+    follow_redirects: all
+    status_code: 200, 301, 302
+  register: aapanel_result
+  until: aapanel_result.status in [200, 301, 302]
+  retries: 20
+  delay: 10
+  delegate_to: localhost
 
 - name: Debug final access info
   ansible.builtin.debug:
