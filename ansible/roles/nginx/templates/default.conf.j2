@@ -14,9 +14,9 @@ server {
     root {{ wordpress_site_path }};
     index index.php index.html index.htm;
 
-    location /login {
-        return 301 https://$host:8889$request_uri;
-    }
+    #location /login {
+    #    return 301 https://$host:8889$request_uri;
+    #}
 
     # ------------------------
     # WordPress PHP
