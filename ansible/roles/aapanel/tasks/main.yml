@@ -42,16 +42,16 @@
   retries: 20
   delay: 5
 
-- name: Wait for aaPanel service to be ready internally
-  ansible.builtin.uri:
-    url: "http://127.0.0.1:8888"
-    status_code: 200,301,302
-    timeout: 5
-  register: aapanel_service_ready
-  until: aapanel_service_ready is succeeded
-  retries: 20
-  delay: 5
-  delegate_to: "{{ inventory_hostname }}"
+# - name: Wait for aaPanel service to be ready internally
+#   ansible.builtin.uri:
+#     url: "http://127.0.0.1:8888"
+#     status_code: 200,301,302
+#     timeout: 5
+#   register: aapanel_service_ready
+#   until: aapanel_service_ready is succeeded
+#   retries: 20
+#   delay: 5
+#   delegate_to: "{{ inventory_hostname }}"
 
 - name: Pause to allow Nginx to restart
   ansible.builtin.pause:
@@ -63,18 +63,18 @@
     command: mkdir -p /www/server/panel/data
     user: root
 
-- name: Wait for aaPanel to be accessible via Nginx proxy
-  ansible.builtin.uri:
-    url: "https://127.0.0.1:8889"
-    validate_certs: false
-    follow_redirects: all
-    status_code: 200,301,302
-    timeout: 5
-  register: aapanel_local_result
-  until: aapanel_local_result is succeeded
-  retries: 20
-  delay: 10
-  delegate_to: "{{ inventory_hostname }}"
+# - name: Wait for aaPanel to be accessible via Nginx proxy
+#   ansible.builtin.uri:
+#     url: "https://127.0.0.1:8889"
+#     validate_certs: false
+#     follow_redirects: all
+#     status_code: 200,301,302
+#     timeout: 5
+#   register: aapanel_local_result
+#   until: aapanel_local_result is succeeded
+#   retries: 20
+#   delay: 10
+#   delegate_to: "{{ inventory_hostname }}"
 
 - name: Debug final access info
   ansible.builtin.debug:
