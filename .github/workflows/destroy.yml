@@ -33,9 +33,16 @@ jobs:
             --filters "Name=group-name,Values=$SG_NAME" \
             --region $AWS_REGION \
             --query "SecurityGroups[0].GroupId" --output text)
-
+          
           if [ "$EXISTING_SG_ID" != "None" ] && [ "$EXISTING_SG_ID" != "null" ]; then
-            terraform state rm aws_security_group.nginx_security_group || echo "SG not in state, skipping..."
+            terraform state list | grep -q "aws_security_group.nginx_security_group"
+            if [ $? -eq 0 ]; then
+              terraform state rm aws_security_group.nginx_security_group
+            else
+              echo "SG not in state, skipping removal..."
+            fi
+          else
+            echo "Security Group does not exist in AWS, skipping..."
           fi
         working-directory: terraform
         env:
