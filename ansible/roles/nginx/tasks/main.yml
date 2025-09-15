@@ -70,14 +70,14 @@
     path: "/etc/nginx/sites-enabled/{{ item }}"
     state: absent
   loop:
-    - default
+    - default.conf
     - aapanel.conf
   notify: Restart Nginx
 
 - name: Deploy WordPress Nginx config
   ansible.builtin.template:
     src: default.conf.j2
-    dest: /etc/nginx/sites-available/default
+    dest: /etc/nginx/sites-available/default.conf
     owner: nginx
     group: nginx
     mode: '0644'
@@ -85,8 +85,8 @@
 
 - name: Enable WordPress site
   ansible.builtin.file:
-    src: /etc/nginx/sites-available/default
-    dest: /etc/nginx/sites-enabled/default
+    src: /etc/nginx/sites-available/default.conf
+    dest: /etc/nginx/sites-enabled/default.conf
     state: link
   notify: Restart Nginx
 
