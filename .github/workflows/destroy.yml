@@ -35,8 +35,7 @@ jobs:
             --query "SecurityGroups[0].GroupId" --output text)
           
           if [ "$EXISTING_SG_ID" != "None" ] && [ "$EXISTING_SG_ID" != "null" ]; then
-            terraform state list | grep -q "aws_security_group.nginx_security_group"
-            if [ $? -eq 0 ]; then
+            if terraform state list | grep -q "aws_security_group.nginx_security_group"; then
               terraform state rm aws_security_group.nginx_security_group
             else
               echo "SG not in state, skipping removal..."
