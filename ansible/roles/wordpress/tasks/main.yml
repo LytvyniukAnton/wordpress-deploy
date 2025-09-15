@@ -1,8 +1,4 @@
----
-# tasks file for wordpress
-
-# --- Create WordPress directory ---
-- name: Ensure WordPress directory exists
+- name: Create WordPress directory
   ansible.builtin.file:
     path: "{{ wordpress_site_path }}"
     state: directory
@@ -10,8 +6,7 @@
     group: nginx
     mode: '0755'
 
-# --- Download and extract WordPress ---
-- name: Download and extract WordPress
+- name: Download and unarchive WordPress
   ansible.builtin.unarchive:
     src: https://wordpress.org/latest.tar.gz
     dest: "{{ wordpress_site_path }}"
@@ -20,8 +15,7 @@
     owner: nginx
     group: nginx
 
-# --- Deploy wp-config.php ---
-- name: Deploy wp-config.php
+- name: Configure wp-config.php
   ansible.builtin.template:
     src: wp-config.php.j2
     dest: "{{ wordpress_site_path }}/wp-config.php"
@@ -29,23 +23,30 @@
     group: nginx
     mode: '0644'
 
-# --- Set ownership and permissions recursively ---
-- name: Set ownership and permissions recursively for WordPress
-  ansible.builtin.file:
-    path: "{{ wordpress_site_path }}"
-    state: directory
-    owner: nginx
-    group: nginx
-    recurse: true
-    mode: '0755'
-  notify: Restart Nginx
+- name: Find all directories in the WordPress installation
+  ansible.builtin.find:
+    paths: "{{ wordpress_site_path }}"
+    file_type: directory
+  register: wordpress_dirs
 
-# --- Ensure uploads writable by nginx ---
-- name: Ensure wp-content/uploads is writable
+- name: Set correct permissions for WordPress directories
   ansible.builtin.file:
-    path: "{{ wordpress_site_path }}/wp-content/uploads"
-    state: directory
+    path: "{{ item.path }}"
     owner: nginx
     group: nginx
     mode: '0755'
-    recurse: true
+  loop: "{{ wordpress_dirs.files }}"
+
+- name: Find all files in the WordPress installation
+  ansible.builtin.find:
+    paths: "{{ wordpress_site_path }}"
+    file_type: file
+  register: wordpress_files
+
+- name: Set correct permissions for WordPress files
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    owner: nginx
+    group: nginx
+    mode: '0644'
+  loop: "{{ wordpress_files.files }}"
