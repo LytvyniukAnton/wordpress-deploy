@@ -6,7 +6,7 @@
   vars:
     db_name: "wordpress_db"
     db_user: "wordpress_user"
-    wordpress_site_path: "/var/www/html/wordpress"
+    wordpress_site_path: "/var/www/html"
 
   vars_files:
     - secrets.yml
