@@ -1,3 +1,11 @@
+- name: Ensure parent directories exist
+  ansible.builtin.file:
+    path: "{{ wordpress_site_path | dirname }}"
+    state: directory
+    owner: nginx
+    group: nginx
+    mode: '0755'
+
 - name: Create WordPress directory
   ansible.builtin.file:
     path: "{{ wordpress_site_path }}"
@@ -36,6 +44,7 @@
     group: nginx
     mode: '0755'
   loop: "{{ wordpress_dirs.files }}"
+  notify: Restart Nginx
 
 - name: Find all files in the WordPress installation
   ansible.builtin.find:
@@ -50,3 +59,4 @@
     group: nginx
     mode: '0644'
   loop: "{{ wordpress_files.files }}"
+  notify: Restart Nginx
