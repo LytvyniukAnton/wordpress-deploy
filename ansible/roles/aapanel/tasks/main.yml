@@ -44,13 +44,14 @@
 
 - name: Wait for aaPanel service to be ready internally
   ansible.builtin.uri:
-    url: "https://{{ ansible_host }}:8889"
+    url: "http://127.0.0.1:8888"
     status_code: 200,301,302
     timeout: 5
   register: aapanel_service_ready
   until: aapanel_service_ready is succeeded
   retries: 20
   delay: 5
+  delegate_to: "{{ inventory_hostname }}"
 
 - name: Pause to allow Nginx to restart
   ansible.builtin.pause:
