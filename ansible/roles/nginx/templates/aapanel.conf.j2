@@ -27,8 +27,8 @@ server {
         send_timeout 60s;
     }
 
-    location /login {
-        proxy_pass http://127.0.0.1:8888/login;
-        proxy_set_header Host $host;
-    }   
+    #location /login {
+    #    proxy_pass http://127.0.0.1:8888/login;
+    #    proxy_set_header Host $host;
+    #}   
 }
