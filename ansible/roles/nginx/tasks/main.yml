@@ -65,11 +65,22 @@
   notify: Set SSL permissions
 
 # --- Site config ---
-- name: Remove old site configs
+- name: Remove old site-enabled links
   ansible.builtin.file:
     path: "/etc/nginx/sites-enabled/{{ item }}"
     state: absent
   loop:
+    - default
+    - default.conf
+    - aapanel.conf
+  notify: Restart Nginx
+
+- name: Remove old site-available files
+  ansible.builtin.file:
+    path: "/etc/nginx/sites-available/{{ item }}"
+    state: absent
+  loop:
+    - default
     - default.conf
     - aapanel.conf
   notify: Restart Nginx
